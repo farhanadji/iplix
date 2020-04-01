@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		C8783CD32434A1920015F92B /* CategoryPageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8783CD22434A1920015F92B /* CategoryPageViewController.swift */; };
+		C8783CD72434AD280015F92B /* DetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8783CD62434AD280015F92B /* DetailViewController.swift */; };
 		C89304342434693D00938A2D /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C89304332434693D00938A2D /* AppDelegate.swift */; };
 		C89304362434693D00938A2D /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C89304352434693D00938A2D /* SceneDelegate.swift */; };
 		C89304382434693D00938A2D /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C89304372434693D00938A2D /* ViewController.swift */; };
@@ -17,6 +19,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		C8783CD22434A1920015F92B /* CategoryPageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryPageViewController.swift; sourceTree = "<group>"; };
+		C8783CD62434AD280015F92B /* DetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailViewController.swift; sourceTree = "<group>"; };
 		C89304302434693D00938A2D /* iplix.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = iplix.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C89304332434693D00938A2D /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		C89304352434693D00938A2D /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -62,10 +66,12 @@
 				C89304352434693D00938A2D /* SceneDelegate.swift */,
 				C89304372434693D00938A2D /* ViewController.swift */,
 				C89304392434693D00938A2D /* Main.storyboard */,
+				C8783CD22434A1920015F92B /* CategoryPageViewController.swift */,
 				C893043C2434694100938A2D /* Assets.xcassets */,
 				C893043E2434694100938A2D /* LaunchScreen.storyboard */,
 				C89304412434694100938A2D /* Info.plist */,
 				C89304472434804800938A2D /* MovieViewCell.swift */,
+				C8783CD62434AD280015F92B /* DetailViewController.swift */,
 			);
 			path = iplix;
 			sourceTree = "<group>";
@@ -144,7 +150,9 @@
 				C89304382434693D00938A2D /* ViewController.swift in Sources */,
 				C89304482434804800938A2D /* MovieViewCell.swift in Sources */,
 				C89304342434693D00938A2D /* AppDelegate.swift in Sources */,
+				C8783CD72434AD280015F92B /* DetailViewController.swift in Sources */,
 				C89304362434693D00938A2D /* SceneDelegate.swift in Sources */,
+				C8783CD32434A1920015F92B /* CategoryPageViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

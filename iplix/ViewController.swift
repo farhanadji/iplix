@@ -14,15 +14,25 @@ class ViewController: UIViewController {
     
     var movies: [String] = ["Avengers hwhwhw hwhwhw", "Iron Man", "Money Heist", "Cibai"]
     var genres: [String] = ["Sci-fi", "Action", "Comedy", "Adult"]
+    var titleToSend: String = "title"
     
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
          collectionView.dataSource = self
          collectionView.delegate = self
-        
     }
-
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        let backItem = UIBarButtonItem()
+        backItem.title = "Home"
+        navigationItem.backBarButtonItem = backItem
+        
+        if segue.identifier == "goToDetail" {
+            let vc = segue.destination as! DetailViewController
+            vc.judul = titleToSend
+        }
+    }
 }
 
 extension ViewController: UICollectionViewDataSource, UICollectionViewDelegate {
@@ -45,7 +55,9 @@ extension ViewController: UICollectionViewDataSource, UICollectionViewDelegate {
     
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        print(movies[indexPath.row])
+        titleToSend = movies[indexPath.row]
+        performSegue(withIdentifier:"goToDetail", sender: self)
     }
+    
 }
 
