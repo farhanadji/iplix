@@ -7,23 +7,25 @@
 //
 
 import UIKit
+import Alamofire
+import SDWebImage
 
 class ViewController: UIViewController {
-    @IBOutlet weak var collectionView: UICollectionView!
-    @IBOutlet weak var accountBtn: UIBarButtonItem!
     
-    var movies: [String] = ["Avengers hwhwhw hwhwhw", "Iron Man", "Money Heist", "Cibai"]
-    var genres: [String] = ["Sci-fi", "Action", "Comedy", "Adult"]
-    var titleToSend: String = "title"
+    @IBOutlet weak var accountBtn: UIBarButtonItem!
+    @IBOutlet weak var tableView: UITableView!
     
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
-         collectionView.dataSource = self
-         collectionView.delegate = self
+         
+        tableView.dataSource = self
+        tableView.delegate = self
+        tableView.register(UINib(nibName: "PopularViewCell", bundle: nil), forCellReuseIdentifier: "popularCell")
+        
     }
     
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+  /*  override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         let backItem = UIBarButtonItem()
         backItem.title = "Home"
         navigationItem.backBarButtonItem = backItem
@@ -33,31 +35,28 @@ class ViewController: UIViewController {
             vc.judul = titleToSend
         }
     }
+ */
 }
 
-extension ViewController: UICollectionViewDataSource, UICollectionViewDelegate {
+extension ViewController: UITableViewDataSource, UITableViewDelegate {
+    
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return 1
+    }
 
-     
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        // print(movies.count)
-        return self.movies.count
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        print(indexPath.row)
-        
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "cell", for: indexPath) as! MovieViewCell
-        cell.title.text = movies[indexPath.row]
-        cell.genre.text = genres[indexPath.row]
-       
-        return cell
-    }
-    
-    
-    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        titleToSend = movies[indexPath.row]
-        performSegue(withIdentifier:"goToDetail", sender: self)
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        if indexPath.row == 0 {
+            print("1")
+            let cell = tableView.dequeueReusableCell(withIdentifier: "cell",for: indexPath) as! PopularViewCell
+            return cell
+        }
+        else{
+            print("2")
+            let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
+            return cell
+        }
     }
     
 }
+
 

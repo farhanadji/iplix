@@ -11,13 +11,16 @@ import UIKit
 class DetailViewController: UIViewController {
     var judul: String?
     
-    @IBOutlet weak var judulLabel: UILabel!
     override func viewDidLoad() {
         super.viewDidLoad()
-        judulLabel.text = judul
+        print(judul!)
         // Do any additional setup after loading the view.
     }
     
+    override func viewDidAppear(_ animated: Bool) {
+           navigationController?.navigationBar.topItem?.title = judul!
+    }
+  
 
     /*
     // MARK: - Navigation

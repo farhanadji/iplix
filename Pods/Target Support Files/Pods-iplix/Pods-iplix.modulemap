@@ -1,0 +1,6 @@
+framework module Pods_iplix {
+  umbrella header "Pods-iplix-umbrella.h"
+
+  export *
+  module * { export * }
+}
