@@ -1,27 +1,28 @@
 //
-//  DetailViewController.swift
+//  AddReviewViewController.swift
 //  iplix
 //
-//  Created by Farhan Adji on 01/04/20.
+//  Created by Farhan Adji on 04/04/20.
 //  Copyright © 2020 Farhan Adji. All rights reserved.
 //
 
 import UIKit
 
-class DetailViewController: UIViewController {
-    var judul: String?
-    
+class AddReviewViewController: UIViewController {
+
+    @IBOutlet weak var btnCancel: UIBarButtonItem!
     override func viewDidLoad() {
         super.viewDidLoad()
-        print(judul!)
+
         // Do any additional setup after loading the view.
     }
     
-    override func viewDidAppear(_ animated: Bool) {
-           navigationController?.navigationBar.topItem?.title = judul!
+    @IBAction func buttonPressed(_ sender: UIButton) {
+        if sender == btnCancel {
+            dismiss(animated: true, completion: nil)
+        }
     }
-  
-
+    
     /*
     // MARK: - Navigation
 

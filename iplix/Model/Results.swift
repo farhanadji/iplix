@@ -10,5 +10,5 @@ import Foundation
 
 struct Results: Decodable {
     let page: Int
-    let results: [Movies]
+    let results: [Movie]
 }

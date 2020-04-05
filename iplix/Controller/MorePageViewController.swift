@@ -1,86 +1,71 @@
 //
-//  PopularViewCell.swift
+//  MorePageViewController.swift
 //  iplix
 //
-//  Created by Farhan Adji on 02/04/20.
+//  Created by Farhan Adji on 05/04/20.
 //  Copyright © 2020 Farhan Adji. All rights reserved.
 //
 
 import UIKit
 import SDWebImage
 
-protocol ViewCellDelegator {
-    func gotoDetail(movie: Movie)
-    func goToAll(type: String)
-}
-
-class PopularViewCell: UITableViewCell {
+class MorePageViewController: UIViewController {
     
-    @IBOutlet weak var categoryTitle: UILabel!
-    @IBOutlet weak var viewCollection: UICollectionView!
-    @IBOutlet weak var seeAllBtn: UIButton!
+    @IBOutlet weak var detailCollection: UICollectionView!
     
     var movies: [Movie] = []
     var genres: [Genres] = []
     var network = NetworkManager()
     var delegate: ViewCellDelegator!
     var type: String = ""
+    var movieToSend: Movie?
     
-    override func awakeFromNib() {
-        super.awakeFromNib()
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        detailCollection.dataSource = self
+        detailCollection.delegate = self
+        detailCollection.register(UINib(nibName: "MovieCollectionViewCell", bundle: nil), forCellWithReuseIdentifier: "movieCell")
+        // Do any additional setup after loading the view.
         
-        viewCollection.dataSource = self
-        viewCollection.delegate = self
-        viewCollection.register(UINib(nibName: "MovieCollectionViewCell", bundle: nil), forCellWithReuseIdentifier: "movieCell")
-    }
-    
-    func loadAPI(typeMovie: String){
-        
+        if type == "popular" {
+            navigationItem.title = "Popular Movies"
+        } else if type == "now_playing" {
+            navigationItem.title = "Now Playing"
+        }
         network.getGenres() { response in
             self.genres = response
             DispatchQueue.main.async {
                 if self.movies.count > 0 {
-                    self.viewCollection.reloadData()
+                    self.detailCollection.reloadData()
                 }
             }
         }
-        network.getMovies(typeMovie: typeMovie) { response in
+        network.getMovies(typeMovie: type) { response in
             self.movies = response
             DispatchQueue.main.async {
                 if self.genres.count > 0 {
-                    self.viewCollection.reloadData()
+                    self.detailCollection.reloadData()
                 }
             }
         }
-        
     }
-    @IBAction func buttonClicked(_ sender: UIButton) {
-        if sender == seeAllBtn {
-            goToAll(type: type)
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "goToDetailFromAll" {
+            if let vc = segue.destination as? MovieDetailViewController {
+                vc.movieData = movieToSend
+            }
         }
-    }
-    
-    override func setSelected(_ selected: Bool, animated: Bool) {
-        super.setSelected(selected, animated: animated)
-        
-        // Configure the view for the selected state
-    }
-    
-    func goToAll(type: String) {
-        delegate.goToAll(type: type)
     }
 }
 
-//MARK: - UICollectionView
-extension PopularViewCell: UICollectionViewDataSource, UICollectionViewDelegate {
+extension MorePageViewController: UICollectionViewDataSource, UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return movies.count
     }
     
-    
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "movieCell", for: indexPath) as! MovieCollectionViewCell
+        let cell = detailCollection.dequeueReusableCell(withReuseIdentifier: "movieCell", for: indexPath) as! MovieCollectionViewCell
         
         if let title = cell.title {
             title.text = movies[indexPath.row].title!
@@ -100,14 +85,13 @@ extension PopularViewCell: UICollectionViewDataSource, UICollectionViewDelegate 
                 genreLabel.text = " "
             }
         }
-        
         return cell
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let getMovie = movies[indexPath.row]
-        delegate.gotoDetail(movie: getMovie)
-        //performSegue(withIdentifier:"goToDetail", sender: self)
+        movieToSend = movies[indexPath.row]
+        performSegue(withIdentifier: "goToDetailFromAll", sender: self)
     }
+    
+    
 }
-

@@ -9,12 +9,16 @@
 import UIKit
 
 class MovieCollectionViewCell: UICollectionViewCell {
-    @IBOutlet weak var image: UIImageView!
+    
+    
     @IBOutlet weak var title: UILabel!
     @IBOutlet weak var genre: UILabel!
+    @IBOutlet weak var poster: UIImageView!
+    
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code
+        
     }
 
 }
