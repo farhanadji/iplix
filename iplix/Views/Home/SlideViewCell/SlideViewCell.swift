@@ -23,8 +23,8 @@ class SlideViewCell: UITableViewCell {
         super.awakeFromNib()
         movieCollection.dataSource = self
         movieCollection.delegate = self
-        movieCollection.register(UINib(nibName: "SlideCollectionViewCell", bundle: nil), forCellWithReuseIdentifier: "sliderCell")
-        network.getMovies(typeMovie: "popular") { response in
+        movieCollection.register(UINib(nibName: K.nib.slideview, bundle: nil), forCellWithReuseIdentifier: K.identifier.slider)
+        network.getMovies(typeMovie: K.typeMovie.popular) { response in
             self.moviesData = response
             self.movies.append(contentsOf: self.moviesData.prefix(upTo: 6))
             DispatchQueue.main.async {
@@ -32,8 +32,8 @@ class SlideViewCell: UITableViewCell {
             }
         }
         
-        let cellWidth = 370
-        let cellHeight = 180
+        let cellWidth = K.size.sliderWidth
+        let cellHeight = K.size.sliderHeight
         let insetX = (movieCollection.bounds.width - CGFloat(cellWidth)) / 2.0
         let insetY = (movieCollection.bounds.height - CGFloat(cellHeight)) / 2.0
         movieCollection.contentInset = UIEdgeInsets(top: insetY, left: insetX, bottom: insetY, right: insetX)
@@ -44,7 +44,7 @@ class SlideViewCell: UITableViewCell {
 
     override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
-        print("selected")        // Configure the view for the selected state
+
     }
     
 }
@@ -55,7 +55,7 @@ extension SlideViewCell: UICollectionViewDataSource, UICollectionViewDelegate, U
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "sliderCell", for: indexPath) as! SlideCollectionViewCell
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: K.identifier.slider, for: indexPath) as! SlideCollectionViewCell
         cell.imageBanner.sd_setImage(with: URL(string: network.posterOriginalURL + movies[indexPath.row].backdrop_path!), completed: nil)
         
         return cell

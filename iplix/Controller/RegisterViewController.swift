@@ -27,8 +27,12 @@ class RegisterViewController: UIViewController {
         let name = nameTextField.text!
         Auth.auth().createUser(withEmail: email, password: password) { authResult, error in
             if error != nil {
-                let alert = UIAlertController(title: "Sign Up Failed!", message: error?.localizedDescription, preferredStyle: .alert)
-                alert.addAction(UIAlertAction(title: "Ok", style: .default, handler: nil))
+                let alert = UIAlertController(title: K.text.signUpFailed,
+                                              message: error?.localizedDescription,
+                                              preferredStyle: .alert)
+                alert.addAction(UIAlertAction(title: K.text.ok,
+                                              style: .default,
+                                              handler: nil))
                 self.present(alert, animated: true)
             } else {
                 if let user = Auth.auth().currentUser {

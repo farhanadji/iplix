@@ -21,7 +21,9 @@ class SearchViewController: UIViewController {
         super.viewDidLoad()
         searchTableView.dataSource = self
         searchTableView.delegate = self
-        searchTableView.register(UINib(nibName: "SearchTableViewCell", bundle: nil), forCellReuseIdentifier: "searchCell")
+        searchTableView.register(UINib(nibName: K.nib.searchtableview,
+                                       bundle: nil),
+                                 forCellReuseIdentifier: K.identifier.search)
         searchBar.showsCancelButton = false
         network.getGenres() { response in
             self.genres = response
@@ -44,7 +46,7 @@ class SearchViewController: UIViewController {
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == "goToDetailFromSearch" {
+        if segue.identifier == K.identifier.goDetailFromSearch {
             let vc = segue.destination as! MovieDetailViewController
             vc.movieData = movieToSend
         }
@@ -57,7 +59,7 @@ extension SearchViewController: UITableViewDataSource, UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "searchCell", for: indexPath) as! SearchTableViewCell
+        let cell = tableView.dequeueReusableCell(withIdentifier: K.identifier.search, for: indexPath) as! SearchTableViewCell
         if let poster = movies[indexPath.row].poster_path {
             cell.poster.sd_setImage(with: URL(string: network.posterURL + poster))
         }
@@ -76,7 +78,7 @@ extension SearchViewController: UITableViewDataSource, UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         movieToSend = movies[indexPath.row]
-        performSegue(withIdentifier: "goToDetailFromSearch", sender: self)
+        performSegue(withIdentifier: K.identifier.goDetailFromSearch, sender: self)
     }
 }
 

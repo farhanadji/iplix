@@ -7,13 +7,20 @@
 //
 
 import UIKit
+import Cosmos
 
 class RatingTableViewCell: UITableViewCell {
 
+    @IBOutlet weak var allRatingStars: CosmosView!
+    @IBOutlet weak var allRatingLabel: UILabel!
+    @IBOutlet weak var pbFiveStars: UIProgressView!
+    @IBOutlet weak var pbFourStars: UIProgressView!
+    @IBOutlet weak var pbThreeStars: UIProgressView!
+    @IBOutlet weak var pbTwoStars: UIProgressView!
+    @IBOutlet weak var pbOneStars: UIProgressView!
     override func awakeFromNib() {
         super.awakeFromNib()
-        // Initialization code
-        print("rating table called")
+        allRatingStars.settings.fillMode = .precise
     }
 
     override func setSelected(_ selected: Bool, animated: Bool) {

@@ -31,24 +31,42 @@ class MovieDetailViewController: UIViewController {
     var casts: [Casts] = []
     var crews: [Crews] = []
     var reviews: [Review] = []
+    var ratings: Ratings?
+    var docId: String?
     let network: NetworkManager = NetworkManager()
     var tableSection: Int = 3
-    var cellSize: CGFloat = 320
     override func viewDidLoad() {
         super.viewDidLoad()
         scrollView.delegate = self
         tableDetail.delegate = self
         tableDetail.dataSource = self
-        tableDetail.register(UINib(nibName: "RatingTableViewCell", bundle: nil), forCellReuseIdentifier: "ratingCell")
-        tableDetail.register(UINib(nibName: "AddReviewTableViewCell", bundle: nil), forCellReuseIdentifier: "addReviewCell")
-        tableDetail.register(UINib(nibName: "PopularViewCell", bundle: nil), forCellReuseIdentifier: "popularCell")
-        tableDetail.register(UINib(nibName: "CommentTableViewCell", bundle: nil), forCellReuseIdentifier: "commentCell")
+        tableDetail
+            .register(
+                UINib(nibName: K.nib.ratingview,
+                      bundle: nil),
+                forCellReuseIdentifier: K.identifier.rating)
+        tableDetail
+            .register(
+                UINib(nibName: K.nib.addreviewview,
+                      bundle: nil),
+                forCellReuseIdentifier: K.identifier.addreview)
+        tableDetail
+            .register(
+                UINib(nibName: K.nib.popularview,
+                      bundle: nil),
+                forCellReuseIdentifier: K.identifier.popular)
+        tableDetail
+            .register(
+                UINib(nibName: K.nib.commentview,
+                      bundle: nil),
+                forCellReuseIdentifier: K.identifier.comment)
         segmentControl.selectedSegmentIndex = 0
+        
         if let data = movieData {
             if let backdropImage = data.backdrop_path {
                 backdrop.sd_setImage(with: URL(string: network.posterURL + backdropImage))
             } else {
-                backdrop.sd_setImage(with: URL(string: "https://cdn-a.william-reed.com/var/wrbm_gb_food_pharma/storage/images/9/2/8/5/235829-6-eng-GB/Feed-Test-SIC-Feed-20142_news_large.jpg"))
+                backdrop.sd_setImage(with: URL(string: K.URL.default_backdrop))
             }
             imagePoster.sd_setImage(with: URL(string: network.posterURL + data.poster_path!))
             titleMovie.text = data.title!
@@ -63,9 +81,11 @@ class MovieDetailViewController: UIViewController {
         favoriteBtn.layer.borderWidth = 1.0
         favoriteBtn.layer.borderColor = UIColor.systemBlue.cgColor
         
-        favorite = db.collection("favorites")
-            .whereField("movie.id", isEqualTo: movieData?.id)
-            .whereField("user", isEqualTo: Auth.auth().currentUser?.email)
+        favorite = db
+            .collection(K.collection.favorites)
+            .whereField(K.favorites_attr.movie_id,
+                        isEqualTo: movieData?.id)
+            .whereField(K.favorites_attr.user, isEqualTo: Auth.auth().currentUser?.email)
         favorite?.getDocuments { (snapshot, error) in
             if snapshot!.isEmpty {
                 self.isFavorite = false
@@ -95,45 +115,69 @@ class MovieDetailViewController: UIViewController {
             tableSection = 2 + reviews.count
             tableDetail.reloadData()
         case 2:
-            print("3 called")
             tableSection = 2
             tableDetail.reloadData()
         default:
             tableSection = 1
-            print("default")
         }
     }
     
     @IBAction func btnAction(_ sender: UIButton) {
         if sender == favoriteBtn {
             if let mov = movieData, let user = Auth.auth().currentUser?.email {
-                let data = ["id": mov.id ,"popularity": mov.popularity, "vote_count": mov.vote_count, "poster_path": mov.poster_path,
-                            "backdrop_path": mov.backdrop_path, "title": mov.title, "genre_ids": mov.genre_ids, "overview": mov.overview,
-                            "release_date": mov.release_date, "vote_average": mov.vote_average] as [String : Any]
-                db.collection("favorites").addDocument(data: ["user": user, "movie": data])
-                { error in
-                    if let e = error {
-                        let alert = UIAlertController(title: "Error!", message: e.localizedDescription, preferredStyle: .alert)
-                        alert.addAction(UIAlertAction(title: "Ok", style: .default, handler: nil))
-                        self.present(alert, animated: true)
-                    } else {
-                        let alert = UIAlertController(title: "Added to favorites!", message: "", preferredStyle: .alert)
-                        alert.addAction(UIAlertAction(title: "Ok", style: .default, handler: nil))
-                        self.present(alert, animated: true)
-                        self.favoriteBtn.isHidden = true
-                        self.unfavoriteBtn.isHidden = false
-                    }
+                let data = [
+                    K.favorites_attr.id: mov.id,
+                    K.favorites_attr.popularity: mov.popularity,
+                    K.favorites_attr.vote: mov.vote_count,
+                    K.favorites_attr.poster: mov.poster_path,
+                    K.favorites_attr.backdrop: mov.backdrop_path,
+                    K.favorites_attr.title: mov.title,
+                    K.favorites_attr.genre: mov.genre_ids,
+                    K.favorites_attr.overview: mov.overview,
+                    K.favorites_attr.release: mov.release_date,
+                    K.favorites_attr.vote_average: mov.vote_average] as [String : Any]
+                db
+                    .collection(K.collection.favorites)
+                    .addDocument(data: [K.favorites_attr.user: user,
+                                        K.favorites_attr.movie: data])
+                    { error in
+                        if let e = error {
+                            let alert = UIAlertController(title: K.text.errorTitle,
+                                                          message: e.localizedDescription,
+                                                          preferredStyle: .alert)
+                            alert.addAction(UIAlertAction(title: K.text.ok,
+                                                          style: .default,
+                                                          handler: nil))
+                            self.present(alert, animated: true)
+                        } else {
+                            let alert = UIAlertController(title: K.text.add_favorite,
+                                                          message: "",
+                                                          preferredStyle: .alert)
+                            alert.addAction(UIAlertAction(title: K.text.ok,
+                                                          style: .default,
+                                                          handler: nil))
+                            self.present(alert, animated: true)
+                            self.favoriteBtn.isHidden = true
+                            self.unfavoriteBtn.isHidden = false
+                        }
                 }
             }
         } else if sender == unfavoriteBtn {
-            let alert = UIAlertController(title: "Confirmation", message: "Are you sure want to remove \(movieData?.title ?? "") from favorites list ?", preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "No", style: .cancel, handler: nil))
-            alert.addAction(UIAlertAction(title: "Yes", style: .destructive, handler: { action in
-                self.favorite?.getDocuments(completion: { (snapshot, error) in
-                    snapshot?.documents[0].reference.delete()
-                    self.favoriteBtn.isHidden = false
-                    self.unfavoriteBtn.isHidden = true
-                })
+            let alert = UIAlertController(title: K.text.confirmation,
+                                          message: "\(K.text.remove_message1) \(movieData?.title ?? "") \(K.text.remove_message2)",
+                preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: K.text.no,
+                                          style: .cancel,
+                                          handler: nil))
+            alert.addAction(UIAlertAction(title: K.text.yes,
+                                          style: .destructive,
+                                          handler:
+                { action in
+                    self.favorite?.getDocuments(completion: { (snapshot, error) in
+                        snapshot?.documents[0].reference.delete()
+                        self.favoriteBtn.isHidden = false
+                        self.unfavoriteBtn.isHidden = true
+                    })
             }))
             self.present(alert, animated: true)
         }
@@ -145,18 +189,21 @@ class MovieDetailViewController: UIViewController {
             if let movie = movieData{
                 text = "\(movie.title ?? "") - \(network.moviePageURL)\(movie.id ?? 0)"
             }
-            let shareViewController = UIActivityViewController(activityItems: [text], applicationActivities: nil)
+            let shareViewController = UIActivityViewController(activityItems: [text],
+                                                               applicationActivities: nil)
             shareViewController.popoverPresentationController?.sourceView = self.view
             self.present(shareViewController, animated: true, completion: nil)
         }
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == "goToAddReview" {
+        if segue.identifier == K.identifier.goReview {
             if let vc = segue.destination as? UINavigationController {
                 if let targetController = vc.topViewController as? AddReviewViewController {
                     if let id = movieData?.id {
                         targetController.movie_id = id
+                        targetController.rating = self.ratings
+                        targetController.docId = self.docId
                     }
                 }
             }
@@ -165,33 +212,54 @@ class MovieDetailViewController: UIViewController {
     
     
     override func viewWillAppear(_ animated: Bool) {
-        var reviews = db.collection("reviews").whereField("movie_id", isEqualTo: movieData?.id!).order(by: "timestamp", descending: true)
+        var reviews = db
+            .collection(K.collection.reviews)
+            .whereField(K.reviews_attr.movie, isEqualTo: movieData?.id!)
+            .order(by: K.reviews_attr.time, descending: true)
         reviews.addSnapshotListener { (snapshot, error) in
             self.reviews = []
             if let snapshotDocuments = snapshot?.documents {
                 for doc in snapshotDocuments {
                     let data = doc.data()
                     print(data)
-                    self.reviews.append(self.parseDataReview(data: data))
+                    self.reviews.append(Helper.parseDataReview(data: data))
                 }
                 self.tableSection = 2 + self.reviews.count
                 self.tableDetail.reloadData()
             }
         }
-    }
-    
-    func parseDataReview(data: [String: Any]) -> Review {
-        let movie_id = data["movie_id"] as? Int
-        let user_email = data["user_email"] as? String
-        let user_name = data["user_name"] as? String
-        let stars_value = data["stars_value"] as? Double
-        let review = data["review"] as? String
-        let title = data["title"] as? String
-        let timestamp = data["timestamp"] as? Double
         
-        let data = Review(movie_id: movie_id, review: review, stars_value: stars_value, title: title, user_email: user_email, user_name: user_name, timestamp: timestamp)
-        print()
-        return data
+        var ratings = db
+            .collection(K.collection.ratings).whereField(K.ratings_attr.movie, isEqualTo: movieData?.id)
+        ratings.addSnapshotListener { (snapshot, error) in
+            if let snapshotDocuments = snapshot?.documents {
+                if snapshotDocuments.isEmpty {
+                    var createRatings: DocumentReference? = nil
+                    createRatings = self.db.collection(K.collection.ratings).addDocument(data: [
+                        K.ratings_attr.movie: self.movieData?.id,
+                        K.ratings_attr.count: 0,
+                        K.ratings_attr.average: 0,
+                        K.ratings_attr.onestars: 0,
+                        K.ratings_attr.twostars: 0,
+                        K.ratings_attr.threestars: 0,
+                        K.ratings_attr.fourstars: 0,
+                        K.ratings_attr.five_stars: 0
+                    ]) { error in
+                        if let e = error {
+                            print(e)
+                        } else {
+                            self.docId = createRatings?.documentID
+                        }
+                    }
+                } else {
+                    let data = snapshotDocuments[0].data()
+                    self.docId = snapshotDocuments[0].documentID
+                    print(data)
+                    self.ratings = Helper.parseDataRating(ratingData: data)
+                }
+            }
+             self.tableDetail.reloadData()
+        }
     }
 }
 
@@ -220,14 +288,14 @@ extension MovieDetailViewController: UITableViewDataSource, UITableViewDelegate 
     
     func showDetails(tableView: UITableView, indexPath: IndexPath) -> UITableViewCell {
         if indexPath.row == 0 {
-            let cell = tableView.dequeueReusableCell(withIdentifier: "segmentAbout", for: indexPath) as! AboutSegmentTableViewCell
+            let cell = tableView.dequeueReusableCell(withIdentifier: K.identifier.about, for: indexPath) as! AboutSegmentTableViewCell
             if let data = movieData {
                 cell.about.text = data.overview
             }
             return cell
         } else if indexPath.row == 1 {
             var nameToLabel: String = ""
-            let cell = tableView.dequeueReusableCell(withIdentifier: "castSegment", for: indexPath) as! CastSegmentTableViewCell
+            let cell = tableView.dequeueReusableCell(withIdentifier: K.identifier.cast, for: indexPath) as! CastSegmentTableViewCell
             let castLimit = casts.prefix(15)
             castLimit.map { cast in
                 nameToLabel = nameToLabel + "\(cast.name ?? "")\n"
@@ -252,24 +320,34 @@ extension MovieDetailViewController: UITableViewDataSource, UITableViewDelegate 
             cell.castNameLabel.sizeToFit()
             return cell
         } else {
-            let cell = tableView.dequeueReusableCell(withIdentifier: "informationSegment", for: indexPath)
+            let cell = tableView.dequeueReusableCell(withIdentifier: K.identifier.information, for: indexPath)
             return cell
         }
     }
     
     func showReviews(tableView: UITableView, indexPath: IndexPath) -> UITableViewCell {
         if indexPath.row == 0 {
-            let cell = tableView.dequeueReusableCell(withIdentifier: "ratingCell", for: indexPath) as! RatingTableViewCell
+            let cell = tableView.dequeueReusableCell(withIdentifier: K.identifier.rating, for: indexPath) as! RatingTableViewCell
+            if let rating = ratings {
+                cell.allRatingStars.rating = Double((rating.rating_average)!)
+                cell.allRatingLabel.text = String(rating.rating_count!)
+                if rating.rating_count! > 0 {
+                    print("YES COUNT > 0")
+                    cell.pbOneStars.progress = Float(rating.one_stars!) / Float(rating.rating_count!)
+                    cell.pbTwoStars.progress = Float(rating.two_stars!) / Float(rating.rating_count!)
+                    cell.pbThreeStars.progress = Float(rating.three_stars!) / Float(rating.rating_count!)
+                    cell.pbFourStars.progress = Float(rating.four_stars!) / Float(rating.rating_count!)
+                    cell.pbFiveStars.progress = Float(rating.five_stars!) / Float(rating.rating_count!)
+                }
+            }
             return cell
         } else if indexPath.row == 1 {
             tableView.rowHeight = 44
-            let cell = tableView.dequeueReusableCell(withIdentifier: "addReviewCell", for: indexPath) as! AddReviewTableViewCell
+            let cell = tableView.dequeueReusableCell(withIdentifier: K.identifier.addreview, for: indexPath) as! AddReviewTableViewCell
             cell.delegate = self
             return cell
         } else {
-            let cell = tableView.dequeueReusableCell(withIdentifier: "commentCell", for: indexPath) as! CommentTableViewCell
-            print("INDEX ROW: \(indexPath.row)")
-            print("REVIEW COUNT: \(reviews.count)")
+            let cell = tableView.dequeueReusableCell(withIdentifier: K.identifier.comment, for: indexPath) as! CommentTableViewCell
             if self.reviews.count > 0 {
                 let idx = indexPath.row - 2
                 cell.title.text = reviews[idx].title
@@ -296,15 +374,15 @@ extension MovieDetailViewController: UITableViewDataSource, UITableViewDelegate 
     }
     
     func showRelated(tableView: UITableView, indexPath: IndexPath) -> UITableViewCell {
-        tableView.rowHeight = 300
-        let cell = tableView.dequeueReusableCell(withIdentifier: "popularCell", for: indexPath) as! PopularViewCell
+        tableView.rowHeight = CGFloat(K.size.movieCollectionHeight)
+        let cell = tableView.dequeueReusableCell(withIdentifier: K.identifier.popular, for: indexPath) as! PopularViewCell
         var path = ""
         if indexPath.row == 0 {
             if let data = movieData {
-                path = "\(data.id ?? 0)/similar"
+                path = "\(data.id ?? 0)\(K.typeMovie.similar)"
                 cell.loadAPI(typeMovie: path)
-                cell.categoryTitle.font = cell.categoryTitle.font.withSize(15.0)
-                cell.categoryTitle.text = "Similar with \(data.title ?? "")"
+                cell.categoryTitle.font = cell.categoryTitle.font.withSize(CGFloat(K.size.titleSize))
+                cell.categoryTitle.text = "\(K.text.similar) \(data.title ?? "")"
                 cell.seeAllBtn.isHidden = true
                 cell.delegate = self
             }
@@ -312,13 +390,12 @@ extension MovieDetailViewController: UITableViewDataSource, UITableViewDelegate 
         } else if indexPath.row == 1 {
             var path = ""
             if let data = movieData {
-                path = "\(data.id ?? 0)/recommendations"
+                path = "\(data.id ?? 0)\(K.typeMovie.recommendation)"
                 cell.loadAPI(typeMovie: path)
-                cell.categoryTitle.font = cell.categoryTitle.font.withSize(15.0)
-                cell.categoryTitle.text = "Recomendations for you"
+                cell.categoryTitle.font = cell.categoryTitle.font.withSize(CGFloat(K.size.titleSize))
+                cell.categoryTitle.text = K.text.recommendation
                 cell.seeAllBtn.isHidden = true
                 cell.delegate = self
-                //                tableView.rowHeight = cell.viewCollection.frame.size.height
             }
             return cell
         } else {
@@ -336,8 +413,8 @@ extension MovieDetailViewController: AddReviewDelegates, ViewCellDelegator {
     
     func gotoDetail(movie: Movie) {
         movieToSend = movie
-        let storyboard = UIStoryboard(name: "Main", bundle: nil)
-        let vc = storyboard.instantiateViewController(identifier: "movieDetail") as! MovieDetailViewController
+        let storyboard = UIStoryboard(name: K.identifier.main, bundle: nil)
+        let vc = storyboard.instantiateViewController(identifier: K.identifier.movie_datail) as! MovieDetailViewController
         if let movieData = movieToSend {
             vc.movieData = movieData
         }
@@ -345,7 +422,7 @@ extension MovieDetailViewController: AddReviewDelegates, ViewCellDelegator {
     }
     
     func goToAddReview() {
-        performSegue(withIdentifier: "goToAddReview", sender: self)
+        performSegue(withIdentifier: K.identifier.goReview, sender: self)
     }
     
 }

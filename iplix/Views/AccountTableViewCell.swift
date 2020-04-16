@@ -20,7 +20,7 @@ class AccountTableViewCell: UITableViewCell {
             titleLabel.text = user.displayName
             subtitleLabel.text = user.email
         } else {
-            titleLabel.text = "Login/Register"
+            titleLabel.text = K.text.accountLogin
             subtitleLabel.isHidden = true
         }
         

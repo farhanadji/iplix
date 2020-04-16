@@ -24,9 +24,13 @@ class LoginViewController: UIViewController {
         if sender == loginBtn {
             Auth.auth().signIn(withEmail: email, password: password) { [weak self] authResult, error in
                 if error != nil {
-                    let alert = UIAlertController(title: "Sign In Failed!", message: error?.localizedDescription, preferredStyle: .alert)
+                    let alert = UIAlertController(title: K.text.signInFailed,
+                                                  message: error?.localizedDescription,
+                                                  preferredStyle: .alert)
                     
-                    alert.addAction(UIAlertAction(title: "Ok", style: .default, handler: nil))
+                    alert.addAction(UIAlertAction(title: K.text.ok,
+                                                  style: .default,
+                                                  handler: nil))
                     
                     self?.present(alert, animated: true)
                     self?.passwordTextField.text = ""
@@ -35,7 +39,7 @@ class LoginViewController: UIViewController {
                 }
             }
         } else if sender == signUpBtn {
-            performSegue(withIdentifier: "goToRegister", sender: self)
+            performSegue(withIdentifier: K.identifier.goRegister, sender: self)
         }
     }
 }

@@ -22,7 +22,7 @@ class ReviewCommentTableViewCell: UITableViewCell {
         reviewTextView.delegate = self
         reviewTextView.isScrollEnabled = false
         reviewTextView.textColor = color
-        reviewTextView.text = "Review"
+        reviewTextView.text = K.text.review
     }
 
     override func setSelected(_ selected: Bool, animated: Bool) {
@@ -44,7 +44,7 @@ extension ReviewCommentTableViewCell: UITextViewDelegate {
         print(textView.text!)
         if reviewTextView.text.isEmpty || reviewTextView.text == "" {
             reviewTextView.textColor = color
-            reviewTextView.text = "Review"
+            reviewTextView.text = K.text.review
         }
     }
     

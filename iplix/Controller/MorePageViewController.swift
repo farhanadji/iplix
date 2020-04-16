@@ -11,7 +11,6 @@ import SDWebImage
 
 class MorePageViewController: UIViewController {
     
-//    @IBOutlet weak var detailCollection: UICollectionView!
     @IBOutlet weak var movieList: UITableView!
     
     var movies: [Movie] = []
@@ -25,12 +24,14 @@ class MorePageViewController: UIViewController {
         super.viewDidLoad()
         movieList.dataSource = self
         movieList.delegate = self
-        movieList.register(UINib(nibName: "MovieTableViewCell", bundle: nil), forCellReuseIdentifier: "movieListCell")
+        movieList.register(UINib(nibName: K.nib.movietableview,
+                                 bundle: nil),
+                           forCellReuseIdentifier: K.identifier.movietable)
         
-        if type == "popular" {
-            navigationItem.title = "Popular Movies"
-        } else if type == "now_playing" {
-            navigationItem.title = "Now Playing"
+        if type == K.typeMovie.popular {
+            navigationItem.title = K.text.popular_movies
+        } else if type == K.typeMovie.now_playing {
+            navigationItem.title = K.text.now_playing
         }
         network.getGenres() { response in
             self.genres = response
@@ -51,7 +52,7 @@ class MorePageViewController: UIViewController {
     }
 
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == "goToDetailFromAll" {
+        if segue.identifier == K.identifier.goDetailFromAll {
             if let vc = segue.destination as? MovieDetailViewController {
                 vc.movieData = movieToSend
             }
@@ -66,7 +67,7 @@ extension MorePageViewController: UITableViewDataSource, UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "movieListCell", for: indexPath) as! MovieTableViewCell
+        let cell = tableView.dequeueReusableCell(withIdentifier: K.identifier.movietable, for: indexPath) as! MovieTableViewCell
         cell.indexLabel.text = String(indexPath.row + 1)
         cell.posterImage.sd_setImage(with: URL(string: network.posterURL + movies[indexPath.row].poster_path!))
         cell.titleLabel.text = movies[indexPath.row].title
@@ -83,6 +84,6 @@ extension MorePageViewController: UITableViewDataSource, UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         movieToSend = movies[indexPath.row]
-        performSegue(withIdentifier: "goToDetailFromAll", sender: self)
+        performSegue(withIdentifier: K.identifier.goDetailFromAll, sender: self)
     }
 }

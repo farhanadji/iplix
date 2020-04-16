@@ -32,7 +32,7 @@ class AccountViewController: UIViewController {
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == "goToDetailAccount" {
+        if segue.identifier == K.identifier.goAccountDetail {
             let vc = segue.destination as! DetailAccountViewController
             vc.email = Auth.auth().currentUser?.email
             vc.name = Auth.auth().currentUser?.displayName
@@ -49,10 +49,10 @@ extension AccountViewController: UITableViewDataSource, UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         if indexPath.row == 0 {
-            let cell = tableView.dequeueReusableCell(withIdentifier: "accountCell", for: indexPath) as! AccountTableViewCell
+            let cell = tableView.dequeueReusableCell(withIdentifier: K.identifier.account, for: indexPath) as! AccountTableViewCell
             return cell
         } else {
-            let cell = tableView.dequeueReusableCell(withIdentifier: "logoutCell", for: indexPath) as! LogoutTableViewCell
+            let cell = tableView.dequeueReusableCell(withIdentifier: K.identifier.logout, for: indexPath) as! LogoutTableViewCell
             cell.delegate = self
             return cell
         }
@@ -60,9 +60,9 @@ extension AccountViewController: UITableViewDataSource, UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if Auth.auth().currentUser != nil {
-            performSegue(withIdentifier: "goToDetailAccount", sender: self)
+            performSegue(withIdentifier: K.identifier.goAccountDetail, sender: self)
         } else {
-            performSegue(withIdentifier: "goToLogin", sender: self)
+            performSegue(withIdentifier: K.identifier.goLogin, sender: self)
         }
     }
 }
@@ -70,9 +70,14 @@ extension AccountViewController: UITableViewDataSource, UITableViewDelegate {
 extension AccountViewController: LogoutDelegate {
     func logout() {
         
-        let alert = UIAlertController(title: "Do you want to sign out?", message: "", preferredStyle: .alert)
+        let alert = UIAlertController(title: K.text.signOut,
+                                      message: "",
+                                      preferredStyle: .alert)
         
-        alert.addAction(UIAlertAction(title: "Yes", style: .destructive, handler: { action in
+        alert.addAction(UIAlertAction(title: K.text.yes,
+                                      style: .destructive,
+                                      handler:
+            { action in
             do {
                 try Auth.auth().signOut()
             } catch let error as NSError {
@@ -82,7 +87,9 @@ extension AccountViewController: LogoutDelegate {
             self.tableView.reloadData()
             self.dismiss(animated: true, completion: nil)
         }))
-        alert.addAction(UIAlertAction(title: "No", style: .cancel, handler: nil))
+        alert.addAction(UIAlertAction(title: K.text.no,
+                                      style: .cancel,
+                                      handler: nil))
         
         self.present(alert, animated: true)
     }

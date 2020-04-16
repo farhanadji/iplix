@@ -31,7 +31,7 @@ class PopularViewCell: UITableViewCell {
         
         viewCollection.dataSource = self
         viewCollection.delegate = self
-        viewCollection.register(UINib(nibName: "MovieCollectionViewCell", bundle: nil), forCellWithReuseIdentifier: "movieCell")
+        viewCollection.register(UINib(nibName: K.nib.movieview, bundle: nil), forCellWithReuseIdentifier: K.identifier.movie)
     }
     
     func loadAPI(typeMovie: String){
@@ -80,7 +80,7 @@ extension PopularViewCell: UICollectionViewDataSource, UICollectionViewDelegate 
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "movieCell", for: indexPath) as! MovieCollectionViewCell
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: K.identifier.movie, for: indexPath) as! MovieCollectionViewCell
         
         if let title = cell.title {
             title.text = movies[indexPath.row].title!
@@ -107,7 +107,6 @@ extension PopularViewCell: UICollectionViewDataSource, UICollectionViewDelegate 
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let getMovie = movies[indexPath.row]
         delegate.gotoDetail(movie: getMovie)
-        //performSegue(withIdentifier:"goToDetail", sender: self)
     }
 }
 
