@@ -11,6 +11,7 @@ import SDWebImage
 
 class ViewController: UIViewController {
     
+    @IBOutlet weak var sliderCollection: UICollectionView!
     @IBOutlet weak var accountBtn: UIBarButtonItem!
     @IBOutlet weak var tableView: UITableView!
     var movieToSend: Movie?
@@ -22,6 +23,7 @@ class ViewController: UIViewController {
         tableView.dataSource = self
         tableView.delegate = self
         tableView.register(UINib(nibName: "PopularViewCell", bundle: nil), forCellReuseIdentifier: "popularCell")
+        tableView.register(UINib(nibName: "SlideViewCell", bundle: nil), forCellReuseIdentifier: "sliderTableCell")
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -54,16 +56,22 @@ class ViewController: UIViewController {
 
 extension ViewController: UITableViewDataSource, UITableViewDelegate, ViewCellDelegator {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 2
+        return 3
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         if indexPath.row == 0 {
+            let cell = tableView.dequeueReusableCell(withIdentifier: "sliderTableCell", for: indexPath) as! SlideViewCell
+            print(cell.frame.height)
+            return cell
+        }
+        else if indexPath.row == 1 {
             let cell = tableView.dequeueReusableCell(withIdentifier: "popularCell",for: indexPath) as! PopularViewCell
             cell.categoryTitle.text = "Popular"
             cell.loadAPI(typeMovie: "popular")
             cell.delegate = self
             cell.type = "popular"
+            print(tableView.frame.height)
             return cell
         }
         else{
@@ -77,6 +85,16 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate, ViewCellDe
         }
     }
     
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        var height: CGFloat = CGFloat()
+        if indexPath.row == 0 {
+            height = 180
+        } else {
+            height = 300
+        }
+        return height
+    }
+    
     func gotoDetail(movie: Movie) {
         movieToSend = movie
         performSegue(withIdentifier:"goToDetail", sender: self)
@@ -86,6 +104,8 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate, ViewCellDe
         self.type = type
         performSegue(withIdentifier: "goToAll", sender: self)
      }
+    
+    
 }
 
 

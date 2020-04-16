@@ -11,7 +11,8 @@ import SDWebImage
 
 class MorePageViewController: UIViewController {
     
-    @IBOutlet weak var detailCollection: UICollectionView!
+//    @IBOutlet weak var detailCollection: UICollectionView!
+    @IBOutlet weak var movieList: UITableView!
     
     var movies: [Movie] = []
     var genres: [Genres] = []
@@ -22,10 +23,9 @@ class MorePageViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        detailCollection.dataSource = self
-        detailCollection.delegate = self
-        detailCollection.register(UINib(nibName: "MovieCollectionViewCell", bundle: nil), forCellWithReuseIdentifier: "movieCell")
-        // Do any additional setup after loading the view.
+        movieList.dataSource = self
+        movieList.delegate = self
+        movieList.register(UINib(nibName: "MovieTableViewCell", bundle: nil), forCellReuseIdentifier: "movieListCell")
         
         if type == "popular" {
             navigationItem.title = "Popular Movies"
@@ -36,7 +36,7 @@ class MorePageViewController: UIViewController {
             self.genres = response
             DispatchQueue.main.async {
                 if self.movies.count > 0 {
-                    self.detailCollection.reloadData()
+                    self.movieList.reloadData()
                 }
             }
         }
@@ -44,12 +44,12 @@ class MorePageViewController: UIViewController {
             self.movies = response
             DispatchQueue.main.async {
                 if self.genres.count > 0 {
-                    self.detailCollection.reloadData()
+                    self.movieList.reloadData()
                 }
             }
         }
     }
-    
+
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "goToDetailFromAll" {
             if let vc = segue.destination as? MovieDetailViewController {
@@ -59,39 +59,30 @@ class MorePageViewController: UIViewController {
     }
 }
 
-extension MorePageViewController: UICollectionViewDataSource, UICollectionViewDelegate {
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+
+extension MorePageViewController: UITableViewDataSource, UITableViewDelegate {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return movies.count
     }
     
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = detailCollection.dequeueReusableCell(withReuseIdentifier: "movieCell", for: indexPath) as! MovieCollectionViewCell
-        
-        if let title = cell.title {
-            title.text = movies[indexPath.row].title!
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "movieListCell", for: indexPath) as! MovieTableViewCell
+        cell.indexLabel.text = String(indexPath.row + 1)
+        cell.posterImage.sd_setImage(with: URL(string: network.posterURL + movies[indexPath.row].poster_path!))
+        cell.titleLabel.text = movies[indexPath.row].title
+         if let genreId = movies[indexPath.row].genre_ids?.first {
+            let genre = genres.filter({ $0.id == genreId })
+            cell.genreLabel.text = genre[0].name
+        } else {
+            cell.genreLabel.text = " "
         }
-        if let image = cell.poster {
-            image.image = nil
-            if let poster = movies[indexPath.row].poster_path {
-                image.sd_setImage(with: URL(string: network.posterURL + poster))
-            }
-        }
-        
-        if let genreLabel = cell.genre {
-            if let genreId = movies[indexPath.row].genre_ids?.first {
-                let genre = genres.filter({ $0.id == genreId })
-                genreLabel.text = genre[0].name
-            } else {
-                genreLabel.text = " "
-            }
-        }
+        cell.releaseDate.text = movies[indexPath.row].release_date
         return cell
     }
     
-    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         movieToSend = movies[indexPath.row]
         performSegue(withIdentifier: "goToDetailFromAll", sender: self)
     }
-    
-    
 }

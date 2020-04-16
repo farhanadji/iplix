@@ -1,19 +1,21 @@
 //
-//  RatingTableViewCell.swift
+//  SearchTableViewCell.swift
 //  iplix
 //
-//  Created by Farhan Adji on 04/04/20.
+//  Created by Farhan Adji on 13/04/20.
 //  Copyright © 2020 Farhan Adji. All rights reserved.
 //
 
 import UIKit
 
-class RatingTableViewCell: UITableViewCell {
-
+class SearchTableViewCell: UITableViewCell {
+    @IBOutlet weak var poster: UIImageView!
+    @IBOutlet weak var titleLabel: UILabel!
+    @IBOutlet weak var genreLabel: UILabel!
+    
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code
-        print("rating table called")
     }
 
     override func setSelected(_ selected: Bool, animated: Bool) {
@@ -23,5 +25,3 @@ class RatingTableViewCell: UITableViewCell {
     }
     
 }
-
-
