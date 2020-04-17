@@ -8,6 +8,7 @@
 
 import UIKit
 import Firebase
+import JGProgressHUD
 
 class AddReviewViewController: UIViewController {
     
@@ -23,6 +24,7 @@ class AddReviewViewController: UIViewController {
     var docId: String?
     var newRating: Ratings?
     override func viewDidLoad() {
+        let hud = JGProgressHUD(style: .dark)
         super.viewDidLoad()
         ratingTable.delegate = self
         ratingTable.dataSource = self
@@ -30,7 +32,10 @@ class AddReviewViewController: UIViewController {
     }
     
     @IBAction func buttonAction(_ sender: UIBarButtonItem) {
+        let hud = JGProgressHUD(style: .dark)
         if sender == btnSend {
+            hud.textLabel.text = "Loading"
+            hud.show(in: self.view)
             let timestamp = Date().timeIntervalSince1970
             self.calculateRating(stars_value: starsValue)
             if let user = Auth.auth().currentUser {
@@ -67,6 +72,7 @@ class AddReviewViewController: UIViewController {
                                         if let e = error {
                                             print(e)
                                         }
+                                        hud.dismiss()
                                         
                                 }
                                 let alert = UIAlertController(title: K.text.successReviewMsg, message: "", preferredStyle: .alert)

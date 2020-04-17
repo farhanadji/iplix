@@ -9,6 +9,7 @@
 import UIKit
 import SDWebImage
 import Firebase
+import JGProgressHUD
 
 class MovieDetailViewController: UIViewController {
     @IBOutlet weak var backdrop: UIImageView!
@@ -37,6 +38,9 @@ class MovieDetailViewController: UIViewController {
     var tableSection: Int = 3
     override func viewDidLoad() {
         super.viewDidLoad()
+        let hud = JGProgressHUD(style: .dark)
+        hud.textLabel.text = "Loading"
+        hud.show(in: self.view)
         scrollView.delegate = self
         tableDetail.delegate = self
         tableDetail.dataSource = self
@@ -102,6 +106,7 @@ class MovieDetailViewController: UIViewController {
                     }
                 }
             }
+            hud.dismiss(afterDelay: 1.0)
         }
     }
     
@@ -224,7 +229,6 @@ class MovieDetailViewController: UIViewController {
                     print(data)
                     self.reviews.append(Helper.parseDataReview(data: data))
                 }
-                self.tableSection = 2 + self.reviews.count
                 self.tableDetail.reloadData()
             }
         }
