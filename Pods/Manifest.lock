@@ -241,6 +241,7 @@ PODS:
     - nanopb (~> 0.3)
   - gRPC-Core/Interface (1.21.0)
   - GTMSessionFetcher/Core (1.3.1)
+  - JGProgressHUD (2.1)
   - leveldb-library (1.22)
   - nanopb (0.3.9011):
     - nanopb/decode (= 0.3.9011)
@@ -256,6 +257,7 @@ DEPENDENCIES:
   - Cosmos (~> 21.0)
   - Firebase/Auth
   - Firebase/Firestore
+  - JGProgressHUD
   - SDWebImage/MapKit
 
 SPEC REPOS:
@@ -277,6 +279,7 @@ SPEC REPOS:
     - "gRPC-C++"
     - gRPC-Core
     - GTMSessionFetcher
+    - JGProgressHUD
     - leveldb-library
     - nanopb
     - SDWebImage
@@ -299,10 +302,11 @@ SPEC CHECKSUMS:
   "gRPC-C++": 9dfe7b44821e7b3e44aacad2af29d2c21f7cde83
   gRPC-Core: c9aef9a261a1247e881b18059b84d597293c9947
   GTMSessionFetcher: cea130bbfe5a7edc8d06d3f0d17288c32ffe9925
+  JGProgressHUD: aa403e9a5b45cae98903c4600cccdd98c0c3ec90
   leveldb-library: 55d93ee664b4007aac644a782d11da33fba316f7
   nanopb: 18003b5e52dab79db540fe93fe9579f399bd1ccd
   SDWebImage: 7edb9c3ea661e77a66661f7f044de8c1b55d1120
 
-PODFILE CHECKSUM: e1229ea51bbba93551363e646d7520f18cb25c3f
+PODFILE CHECKSUM: 69064d57b69cbf5f3627c14122252d16ce06ac1f
 
 COCOAPODS: 1.8.4

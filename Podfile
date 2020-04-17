@@ -12,4 +12,5 @@ target 'iplix' do
     pod 'Firebase/Auth'
     pod 'Firebase/Firestore'
     pod 'Cosmos', '~> 21.0'
+    pod 'JGProgressHUD'
 end

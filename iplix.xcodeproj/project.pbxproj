@@ -61,6 +61,8 @@
 		C8EF8472243CB9260000D690 /* Pods_iplix.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 98919107861E44909AF56BA7 /* Pods_iplix.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		C8F4E5C02446FB620070E6D7 /* ReviewCommentTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8F4E5BF2446FB620070E6D7 /* ReviewCommentTableViewCell.swift */; };
 		C8F4E5C2244708FB0070E6D7 /* TitleReviewTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8F4E5C1244708FB0070E6D7 /* TitleReviewTableViewCell.swift */; };
+		C8FB314524497AA900E9B637 /* CategoriesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8FB314424497AA900E9B637 /* CategoriesViewController.swift */; };
+		C8FB314824498B0E00E9B637 /* CategoryTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8FB314724498B0E00E9B637 /* CategoryTableViewCell.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -136,6 +138,8 @@
 		C8E8E0142446E02C002456B1 /* StarRatingTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StarRatingTableViewCell.swift; sourceTree = "<group>"; };
 		C8F4E5BF2446FB620070E6D7 /* ReviewCommentTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewCommentTableViewCell.swift; sourceTree = "<group>"; };
 		C8F4E5C1244708FB0070E6D7 /* TitleReviewTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TitleReviewTableViewCell.swift; sourceTree = "<group>"; };
+		C8FB314424497AA900E9B637 /* CategoriesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoriesViewController.swift; sourceTree = "<group>"; };
+		C8FB314724498B0E00E9B637 /* CategoryTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryTableViewCell.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -180,6 +184,7 @@
 				C84C482B24444A4A003FF8B1 /* RegisterViewController.swift */,
 				C84C482D24445269003FF8B1 /* DetailAccountViewController.swift */,
 				C87A751E2445AE5600FF7F65 /* FavoriteViewController.swift */,
+				C8FB314424497AA900E9B637 /* CategoriesViewController.swift */,
 			);
 			path = Controller;
 			sourceTree = "<group>";
@@ -327,6 +332,7 @@
 		C8C8886F2435D840001C46D6 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				C8FB314624498AF600E9B637 /* Categories */,
 				C84C482424442298003FF8B1 /* Search */,
 				C8B83A65243D7E81002EF03D /* Home */,
 				C85C7617243C4BDA001C3CB1 /* More */,
@@ -348,6 +354,14 @@
 				98919107861E44909AF56BA7 /* Pods_iplix.framework */,
 			);
 			name = "Recovered References";
+			sourceTree = "<group>";
+		};
+		C8FB314624498AF600E9B637 /* Categories */ = {
+			isa = PBXGroup;
+			children = (
+				C8FB314724498B0E00E9B637 /* CategoryTableViewCell.swift */,
+			);
+			path = Categories;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -492,6 +506,7 @@
 				C84C4827244422B7003FF8B1 /* SearchTableViewCell.swift in Sources */,
 				C84C483024446087003FF8B1 /* LogoutTableViewCell.swift in Sources */,
 				C8B0D3B7243886EB005D3941 /* MovieDetailViewController.swift in Sources */,
+				C8FB314824498B0E00E9B637 /* CategoryTableViewCell.swift in Sources */,
 				C8C888682435A5AF001C46D6 /* NetworkManager.swift in Sources */,
 				C888BE1E244857D40040F435 /* Ratings.swift in Sources */,
 				C8C8886C2435A5CA001C46D6 /* Movie.swift in Sources */,
@@ -515,6 +530,7 @@
 				C85C761F243C789B001C3CB1 /* CastSegmentTableViewCell.swift in Sources */,
 				C8783CD32434A1920015F92B /* CategoryPageViewController.swift in Sources */,
 				C888BE182448303C0040F435 /* Constants.swift in Sources */,
+				C8FB314524497AA900E9B637 /* CategoriesViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
