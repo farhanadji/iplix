@@ -36,7 +36,7 @@ extension ReviewCommentTableViewCell: UITextViewDelegate {
     func textViewDidBeginEditing(_ textView: UITextView) {
         if reviewTextView.isFirstResponder && reviewTextView.textColor == color {
             reviewTextView.text = nil
-            reviewTextView.textColor = .black
+            reviewTextView.textColor = UIColor(named: "typingColor")
         }
     }
     
