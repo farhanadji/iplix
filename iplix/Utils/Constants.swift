@@ -23,6 +23,7 @@ struct K {
         static let account = "accountCell"
         static let logout = "logoutCell"
         static let search = "searchCell"
+        static let category = "categoryCell"
         
         static let goDetailFromHome = "goToDetail"
         static let goAllFromHome = "goToAll"
@@ -34,12 +35,16 @@ struct K {
         static let goLogin = "goToLogin"
         static let goRegister = "goToRegister"
         static let goDetailFromFavorite = "goToDetailFromFavorite"
+        static let goMoreFromCategory = "goToMoreFromCategory"
         
         static let about = "segmentAbout"
         static let cast = "castSegment"
         static let information = "informationSegment"
         static let main = "Main"
         static let movie_datail = "movieDetail"
+        
+        static let senderHome = "home"
+        static let senderCategory = "category"
     }
     
     struct nib {
@@ -57,6 +62,8 @@ struct K {
     struct typeMovie {
         static let popular = "popular"
         static let now_playing = "now_playing"
+        static let top_rated = "top_rated"
+        static let upcoming = "upcoming"
         static let similar = "/similar"
         static let recommendation = "/recommendations"
     }
@@ -76,6 +83,8 @@ struct K {
         static let successReviewMsg = "Success to Add Review!"
         static let back = "Back"
         static let popular = "Popular"
+        static let upcoming = "Upcoming"
+        static let top_rated = "Top Rated"
         static let popular_movies = "Popular Movies"
         static let now_playing = "Now Playing"
         static let add_favorite = "Added to favorites!"
