@@ -8,6 +8,7 @@
 
 import UIKit
 import SDWebImage
+import JGProgressHUD
 
 class MorePageViewController: UIViewController {
     
@@ -18,10 +19,16 @@ class MorePageViewController: UIViewController {
     var network = NetworkManager()
     var delegate: ViewCellDelegator!
     var type: String = ""
+    var sender: String = ""
+    var genre_id: Int?
     var movieToSend: Movie?
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        let hud = JGProgressHUD(style: .dark)
+        hud.textLabel.text = "Loading"
+        hud.show(in: self.view)
+        
         movieList.dataSource = self
         movieList.delegate = self
         movieList.register(UINib(nibName: K.nib.movietableview,
@@ -32,20 +39,42 @@ class MorePageViewController: UIViewController {
             navigationItem.title = K.text.popular_movies
         } else if type == K.typeMovie.now_playing {
             navigationItem.title = K.text.now_playing
+        } else if type == K.typeMovie.upcoming {
+            navigationItem.title = K.text.upcoming
+        } else if type == K.typeMovie.top_rated {
+            navigationItem.title = K.text.top_rated
+        } else {
+            navigationItem.title = type
         }
-        network.getGenres() { response in
-            self.genres = response
-            DispatchQueue.main.async {
-                if self.movies.count > 0 {
-                    self.movieList.reloadData()
+        
+        if sender == K.identifier.senderHome {
+            network.getGenres() { response in
+                self.genres = response
+                DispatchQueue.main.async {
+                    if self.movies.count > 0 {
+                        self.movieList.reloadData()
+                    }
                 }
             }
-        }
-        network.getMovies(typeMovie: type) { response in
-            self.movies = response
-            DispatchQueue.main.async {
-                if self.genres.count > 0 {
-                    self.movieList.reloadData()
+            network.getMovies(typeMovie: type) { response in
+                self.movies = response
+                DispatchQueue.main.async {
+                    if self.genres.count > 0 {
+                        self.movieList.reloadData()
+                        hud.dismiss(afterDelay: 2.0)
+                    }
+                }
+            }
+        } else if sender == K.identifier.senderCategory {
+            if let id = genre_id {
+                network.getDiscoverGenre(id: String(id)) { response in
+                    self.movies = response
+                    DispatchQueue.main.async {
+                        if self.movies.count > 0 {
+                            self.movieList.reloadData()
+                            hud.dismiss(afterDelay: 1.0)
+                        }
+                    }
                 }
             }
         }
@@ -71,9 +100,11 @@ extension MorePageViewController: UITableViewDataSource, UITableViewDelegate {
         cell.indexLabel.text = String(indexPath.row + 1)
         cell.posterImage.sd_setImage(with: URL(string: network.posterURL + movies[indexPath.row].poster_path!))
         cell.titleLabel.text = movies[indexPath.row].title
-         if let genreId = movies[indexPath.row].genre_ids?.first {
-            let genre = genres.filter({ $0.id == genreId })
-            cell.genreLabel.text = genre[0].name
+        if sender == K.identifier.senderHome {
+            if let genreId = movies[indexPath.row].genre_ids?.first {
+                let genre = genres.filter({ $0.id == genreId })
+                cell.genreLabel.text = genre[0].name
+            }
         } else {
             cell.genreLabel.text = " "
         }
