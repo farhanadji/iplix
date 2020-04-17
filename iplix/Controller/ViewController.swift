@@ -49,10 +49,11 @@ class ViewController: UIViewController {
         if segue.identifier == K.identifier.goAllFromHome {
             if let vc = segue.destination as? MorePageViewController {
                 vc.type = type
+                vc.sender = K.identifier.senderHome
             }
         }
     }
- 
+    
     @IBAction func accountBtnPressed(_ sender: UIBarButtonItem) {
         performSegue(withIdentifier: K.identifier.goAccount, sender: self)
     }
@@ -62,9 +63,9 @@ class ViewController: UIViewController {
 //MARK: - UITableView
 extension ViewController: UITableViewDataSource, UITableViewDelegate, ViewCellDelegator {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 3
+        return 5
     }
-
+    
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         if indexPath.row == 0 {
             let cell = tableView.dequeueReusableCell(withIdentifier: K.identifier.sliderTable, for: indexPath) as! SlideViewCell
@@ -80,14 +81,28 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate, ViewCellDe
             print(tableView.frame.height)
             return cell
         }
-        else{
+        else if indexPath.row == 2 {
             let cell = tableView.dequeueReusableCell(withIdentifier: K.identifier.popular, for: indexPath) as! PopularViewCell
             cell.categoryTitle.text = K.text.now_playing
             cell.loadAPI(typeMovie: K.typeMovie.now_playing)
             cell.delegate = self
             cell.type = K.typeMovie.now_playing
             return cell
-            
+        }
+        else if indexPath.row == 3 {
+            let cell = tableView.dequeueReusableCell(withIdentifier: K.identifier.popular, for: indexPath) as! PopularViewCell
+            cell.categoryTitle.text = K.text.upcoming
+            cell.loadAPI(typeMovie: K.typeMovie.upcoming)
+            cell.delegate = self
+            cell.type = K.typeMovie.upcoming
+            return cell
+        } else {
+            let cell = tableView.dequeueReusableCell(withIdentifier: K.identifier.popular, for: indexPath) as! PopularViewCell
+            cell.categoryTitle.text = K.text.top_rated
+            cell.loadAPI(typeMovie: K.typeMovie.top_rated)
+            cell.delegate = self
+            cell.type = K.typeMovie.top_rated
+            return cell
         }
     }
     
@@ -109,7 +124,7 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate, ViewCellDe
     func goToAll(type: String) {
         self.type = type
         performSegue(withIdentifier: K.identifier.goAllFromHome, sender: self)
-     }
+    }
     
     
 }
