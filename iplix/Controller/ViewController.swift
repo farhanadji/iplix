@@ -56,8 +56,7 @@ class ViewController: UIViewController {
     
     @IBAction func accountBtnPressed(_ sender: UIBarButtonItem) {
         performSegue(withIdentifier: K.identifier.goAccount, sender: self)
-    }
-    
+    }    
 }
 
 //MARK: - UITableView
