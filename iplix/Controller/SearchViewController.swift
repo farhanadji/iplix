@@ -8,6 +8,7 @@
 
 import UIKit
 import SDWebImage
+import JGProgressHUD
 
 class SearchViewController: UIViewController {
     
