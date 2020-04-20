@@ -36,6 +36,7 @@ class LoginViewController: UIViewController {
                     self?.passwordTextField.text = ""
                 } else {
                     self?.dismiss(animated: true, completion: nil)
+                    self?.navigationController?.popViewController(animated: true)
                 }
             }
         } else if sender == signUpBtn {
