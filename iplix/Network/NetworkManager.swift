@@ -33,6 +33,16 @@ struct NetworkManager {
         }
     }
     
+    func getMovieDetail(id: Int, competion: @escaping ([ProductionCompany]) -> ()) {
+        let finalURL = "\(movieURL)/\(id)?\(parameters["apiKey"]!)&\(parameters["language"]!)"
+        print(finalURL)
+        
+        AF.request(finalURL, method: .get).responseDecodable(of: MovieDetail.self) { response in
+            guard let studio = response.value?.production_companies else { return }
+            competion(studio)
+        }
+    }
+    
     func getGenres(competion: @escaping ([Genres]) -> ()) {
         AF.request(genreURL, method: .get).responseDecodable(of: ResultGenres.self) { response in
                 guard let genres = response.value?.genres else { return }
