@@ -42,7 +42,7 @@ struct K {
         static let information = "informationSegment"
         static let main = "Main"
         static let movie_datail = "movieDetail"
-        
+        static let signin_page = "signinPage"
         static let senderHome = "home"
         static let senderCategory = "category"
     }
