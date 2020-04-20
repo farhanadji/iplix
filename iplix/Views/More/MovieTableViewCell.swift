@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import Cosmos
 
 class MovieTableViewCell: UITableViewCell {
     @IBOutlet weak var indexLabel: UILabel!
@@ -14,6 +15,7 @@ class MovieTableViewCell: UITableViewCell {
     @IBOutlet weak var titleLabel: UILabel!
     @IBOutlet weak var genreLabel: UILabel!
     @IBOutlet weak var releaseDate: UILabel!
+    @IBOutlet weak var stars: CosmosView!
     
     
     override func awakeFromNib() {
