@@ -9,11 +9,13 @@
 import UIKit
 import SDWebImage
 import JGProgressHUD
+import Firebase
 
 class MorePageViewController: UIViewController {
     
     @IBOutlet weak var movieList: UITableView!
     
+    var moviesHasRating: [Movie] = []
     var movies: [Movie] = []
     var genres: [Genres] = []
     var network = NetworkManager()
@@ -22,7 +24,10 @@ class MorePageViewController: UIViewController {
     var sender: String = ""
     var genre_id: Int?
     var movieToSend: Movie?
+    var ratings: [Ratings] = []
+    var movieRatingId: [Int] = []
     
+    let db = Firestore.firestore()
     override func viewDidLoad() {
         super.viewDidLoad()
         let hud = JGProgressHUD(style: .dark)
@@ -59,7 +64,7 @@ class MorePageViewController: UIViewController {
             network.getMovies(typeMovie: type) { response in
                 self.movies = response
                 DispatchQueue.main.async {
-                    if self.genres.count > 0 {
+                    if self.movies.count > 0 {
                         self.movieList.reloadData()
                         hud.dismiss(afterDelay: 2.0)
                     }
@@ -79,12 +84,27 @@ class MorePageViewController: UIViewController {
             }
         }
     }
-
+    
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == K.identifier.goDetailFromAll {
             if let vc = segue.destination as? MovieDetailViewController {
                 vc.movieData = movieToSend
             }
+        }
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        let ratings = db.collection(K.collection.ratings).addSnapshotListener { (snapshot, error) in
+            self.ratings = []
+            self.movieRatingId = []
+            if let snapshotDocuments = snapshot?.documents {
+                for doc in snapshotDocuments {
+                    let data = doc.data()
+                    self.movieRatingId.append(data["movie_id"] as! Int)
+                    self.ratings.append(Helper.parseDataRating(ratingData: data))
+                }
+            }
+            self.movieList.reloadData()
         }
     }
 }
@@ -97,6 +117,17 @@ extension MorePageViewController: UITableViewDataSource, UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: K.identifier.movietable, for: indexPath) as! MovieTableViewCell
+        if movieRatingId.contains(movies[indexPath.row].id!){
+            let rating = ratings.filter {
+                $0.movie_id == movies[indexPath.row].id
+            }.first
+            cell.stars.rating = rating?.rating_average! as! Double
+            cell.stars.text = "(\(rating?.rating_count! ?? 0))"
+        } else {
+            cell.stars.rating = 0
+            cell.stars.text = "(0)"
+        }
+        
         cell.indexLabel.text = String(indexPath.row + 1)
         cell.posterImage.sd_setImage(with: URL(string: network.posterURL + movies[indexPath.row].poster_path!))
         cell.titleLabel.text = movies[indexPath.row].title
