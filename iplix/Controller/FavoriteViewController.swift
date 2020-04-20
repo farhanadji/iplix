@@ -20,12 +20,14 @@ class FavoriteViewController: UIViewController {
     let network = NetworkManager()
     
     override func viewWillAppear(_ animated: Bool) {
-        favoriteMovies = []
         var favorites = db
             .collection(K.collection.favorites)
             .whereField(K.favorites_attr.user, isEqualTo: Auth.auth().currentUser?.email)
         favorites.addSnapshotListener { (snapshot, error) in
             self.favoriteMovies = []
+            if let e = error {
+                print(e.localizedDescription)
+            }
             if let snapshotDocuments = snapshot?.documents {
                 for doc in snapshotDocuments {
                     let data = doc.data()
@@ -33,10 +35,11 @@ class FavoriteViewController: UIViewController {
                         self.favoriteMovies.append(Helper.parseDataMovie(movieData: movie))
                     }
                 }
+                self.favoriteTableView.reloadData()
             }
-            self.favoriteTableView.reloadData()
         }
     }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         favoriteTableView.dataSource = self
