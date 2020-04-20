@@ -32,13 +32,15 @@ class MovieDetailViewController: UIViewController {
     var casts: [Casts] = []
     var crews: [Crews] = []
     var reviews: [Review] = []
+    var genres: [Genres] = []
+    var studios: [ProductionCompany] = []
     var ratings: Ratings?
     var docId: String?
     let network: NetworkManager = NetworkManager()
     var tableSection: Int = 3
+    let hud = JGProgressHUD(style: .dark)
     override func viewDidLoad() {
         super.viewDidLoad()
-        let hud = JGProgressHUD(style: .dark)
         hud.textLabel.text = "Loading"
         hud.show(in: self.view)
         scrollView.delegate = self
@@ -82,6 +84,16 @@ class MovieDetailViewController: UIViewController {
             self.tableDetail.reloadData()
         }
         
+        network.getMovieDetail(id: (movieData?.id)!) { studios in
+            self.studios = studios
+            self.tableDetail.reloadData()
+        }
+        
+        network.getGenres { genres in
+            self.genres = genres
+            self.tableDetail.reloadData()
+        }
+        
         favoriteBtn.layer.borderWidth = 1.0
         favoriteBtn.layer.borderColor = UIColor.systemBlue.cgColor
         
@@ -106,7 +118,7 @@ class MovieDetailViewController: UIViewController {
                     }
                 }
             }
-            hud.dismiss(afterDelay: 1.0)
+            self.hud.dismiss(afterDelay: 1.0)
         }
     }
     
@@ -129,45 +141,58 @@ class MovieDetailViewController: UIViewController {
     
     @IBAction func btnAction(_ sender: UIButton) {
         if sender == favoriteBtn {
-            if let mov = movieData, let user = Auth.auth().currentUser?.email {
-                let data = [
-                    K.favorites_attr.id: mov.id,
-                    K.favorites_attr.popularity: mov.popularity,
-                    K.favorites_attr.vote: mov.vote_count,
-                    K.favorites_attr.poster: mov.poster_path,
-                    K.favorites_attr.backdrop: mov.backdrop_path,
-                    K.favorites_attr.title: mov.title,
-                    K.favorites_attr.genre: mov.genre_ids,
-                    K.favorites_attr.overview: mov.overview,
-                    K.favorites_attr.release: mov.release_date,
-                    K.favorites_attr.vote_average: mov.vote_average] as [String : Any]
-                db
-                    .collection(K.collection.favorites)
-                    .addDocument(data: [K.favorites_attr.user: user,
-                                        K.favorites_attr.movie: data])
-                    { error in
-                        if let e = error {
-                            let alert = UIAlertController(title: K.text.errorTitle,
-                                                          message: e.localizedDescription,
-                                                          preferredStyle: .alert)
-                            alert.addAction(UIAlertAction(title: K.text.ok,
-                                                          style: .default,
-                                                          handler: nil))
-                            self.present(alert, animated: true)
-                        } else {
-                            let alert = UIAlertController(title: K.text.add_favorite,
-                                                          message: "",
-                                                          preferredStyle: .alert)
-                            alert.addAction(UIAlertAction(title: K.text.ok,
-                                                          style: .default,
-                                                          handler: nil))
-                            self.present(alert, animated: true)
-                            self.favoriteBtn.isHidden = true
-                            self.unfavoriteBtn.isHidden = false
-                        }
+            let hud = JGProgressHUD(style: .dark)
+            hud.textLabel.text = "Loading"
+            hud.show(in: self.view)
+            if Auth.auth().currentUser == nil {
+                let storyboard = UIStoryboard(name: K.identifier.main, bundle: nil)
+                let vc = storyboard.instantiateViewController(identifier: K.identifier.signin_page) as! LoginViewController
+                self.navigationController!.pushViewController(vc, animated:true)
+                hud.dismiss()
+            } else {
+                if let mov = movieData, let user = Auth.auth().currentUser?.email {
+                    let data = [
+                        K.favorites_attr.id: mov.id,
+                        K.favorites_attr.popularity: mov.popularity,
+                        K.favorites_attr.vote: mov.vote_count,
+                        K.favorites_attr.poster: mov.poster_path,
+                        K.favorites_attr.backdrop: mov.backdrop_path,
+                        K.favorites_attr.title: mov.title,
+                        K.favorites_attr.genre: mov.genre_ids,
+                        K.favorites_attr.overview: mov.overview,
+                        K.favorites_attr.release: mov.release_date,
+                        K.favorites_attr.vote_average: mov.vote_average] as [String : Any]
+                    db
+                        .collection(K.collection.favorites)
+                        .addDocument(data: [K.favorites_attr.user: user,
+                                            K.favorites_attr.movie: data])
+                        { error in
+                            hud.dismiss(afterDelay: 1.0)
+                            if let e = error {
+                                let alert = UIAlertController(title: K.text.errorTitle,
+                                                              message: e.localizedDescription,
+                                                              preferredStyle: .alert)
+                                alert.addAction(UIAlertAction(title: K.text.ok,
+                                                              style: .default,
+                                                              handler: nil))
+                                self.present(alert, animated: true)
+                            } else {
+                                let alert = UIAlertController(title: K.text.add_favorite,
+                                                              message: "",
+                                                              preferredStyle: .alert)
+                                alert.addAction(UIAlertAction(title: K.text.ok,
+                                                              style: .default,
+                                                              handler: nil))
+                                self.present(alert, animated: true)
+                                self.favoriteBtn.isHidden = true
+                                self.unfavoriteBtn.isHidden = false
+                            }
+                    }
                 }
             }
         } else if sender == unfavoriteBtn {
+            let hud = JGProgressHUD(style: .dark)
+            hud.textLabel.text = "Loading"
             let alert = UIAlertController(title: K.text.confirmation,
                                           message: "\(K.text.remove_message1) \(movieData?.title ?? "") \(K.text.remove_message2)",
                 preferredStyle: .alert)
@@ -178,11 +203,13 @@ class MovieDetailViewController: UIViewController {
                                           style: .destructive,
                                           handler:
                 { action in
+                    hud.show(in: self.view)
                     self.favorite?.getDocuments(completion: { (snapshot, error) in
                         snapshot?.documents[0].reference.delete()
                         self.favoriteBtn.isHidden = false
                         self.unfavoriteBtn.isHidden = true
                     })
+                    hud.dismiss(afterDelay: 1.0)
             }))
             self.present(alert, animated: true)
         }
@@ -229,6 +256,9 @@ class MovieDetailViewController: UIViewController {
                     print(data)
                     self.reviews.append(Helper.parseDataReview(data: data))
                 }
+            }
+            DispatchQueue.main.async {
+                self.tableSection += 1
                 self.tableDetail.reloadData()
             }
         }
@@ -262,7 +292,9 @@ class MovieDetailViewController: UIViewController {
                     self.ratings = Helper.parseDataRating(ratingData: data)
                 }
             }
-             self.tableDetail.reloadData()
+            DispatchQueue.main.async {
+                self.tableDetail.reloadData()
+            }
         }
     }
 }
@@ -323,9 +355,30 @@ extension MovieDetailViewController: UITableViewDataSource, UITableViewDelegate 
             cell.producerNameLabel.text = producersToLabel
             cell.castNameLabel.sizeToFit()
             return cell
-        } else {
-            let cell = tableView.dequeueReusableCell(withIdentifier: K.identifier.information, for: indexPath)
+        } else if indexPath.row == 2 {
+            let cell = tableView.dequeueReusableCell(withIdentifier: K.identifier.information, for: indexPath) as! InformationTableViewCell
+            if let movie = movieData {
+                cell.released.text = movie.release_date?.components(separatedBy: "-")[0]
+                if let genreId = movie.genre_ids {
+                    let genre = genres.filter{ item in
+                        genreId.contains(item.id)
+                    }
+                    
+                    var genreToLabel: String = ""
+                    genre.map { genre in
+                        genreToLabel = genreToLabel + "\(genre.name ?? "")\n"
+                    }
+                    cell.genre.text = genreToLabel
+                }
+                var studioToLabel: String = ""
+                studios.map { studio in
+                    studioToLabel = studioToLabel + "\(studio.name ?? "")\n"
+                }
+                cell.studio.text = studioToLabel
+            }
             return cell
+        } else {
+            return UITableViewCell()
         }
     }
     
@@ -426,7 +479,14 @@ extension MovieDetailViewController: AddReviewDelegates, ViewCellDelegator {
     }
     
     func goToAddReview() {
-        performSegue(withIdentifier: K.identifier.goReview, sender: self)
+        if Auth.auth().currentUser == nil {
+            let storyboard = UIStoryboard(name: K.identifier.main, bundle: nil)
+            let vc = storyboard.instantiateViewController(identifier: K.identifier.signin_page) as! LoginViewController
+            self.navigationController!.pushViewController(vc, animated:true)
+            hud.dismiss()
+        } else {
+            performSegue(withIdentifier: K.identifier.goReview, sender: self)
+        }
     }
     
 }
