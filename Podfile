@@ -11,6 +11,7 @@ target 'iplix' do
     pod 'SDWebImage/MapKit'
     pod 'Firebase/Auth'
     pod 'Firebase/Firestore'
+    pod 'Firebase/Storage'
     pod 'Cosmos', '~> 21.0'
     pod 'JGProgressHUD'
 end

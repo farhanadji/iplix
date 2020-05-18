@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="16096" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="16087"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="NotificationTableViewCell" customModule="iplix" customModuleProvider="target"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="notificationCell" rowHeight="93" id="nH1-9S-6rv" customClass="NotificationTableViewCell" customModule="iplix" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="414" height="93"/>
+            <autoresizingMask key="autoresizingMask"/>
+            <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="nH1-9S-6rv" id="hS2-GO-dAH">
+                <rect key="frame" x="0.0" y="0.0" width="414" height="93"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="New movie released!" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="GYb-2C-Q15">
+                        <rect key="frame" x="20" y="10" width="374" height="24.5"/>
+                        <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="17"/>
+                        <nil key="textColor"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="252" text="X movies released! click here to get more information about X movies!" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="6eW-T8-iiL">
+                        <rect key="frame" x="20" y="44.5" width="374" height="38.5"/>
+                        <fontDescription key="fontDescription" type="system" pointSize="16"/>
+                        <color key="textColor" systemColor="secondaryLabelColor" red="0.23529411759999999" green="0.23529411759999999" blue="0.26274509800000001" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                </subviews>
+                <constraints>
+                    <constraint firstItem="6eW-T8-iiL" firstAttribute="trailing" secondItem="hS2-GO-dAH" secondAttribute="trailingMargin" id="FG6-S1-Sn8"/>
+                    <constraint firstAttribute="bottom" secondItem="6eW-T8-iiL" secondAttribute="bottom" constant="10" id="I2M-WG-BWf"/>
+                    <constraint firstItem="GYb-2C-Q15" firstAttribute="leading" secondItem="hS2-GO-dAH" secondAttribute="leadingMargin" id="Ihq-My-lsZ"/>
+                    <constraint firstAttribute="trailingMargin" secondItem="GYb-2C-Q15" secondAttribute="trailing" id="UOv-sw-c42"/>
+                    <constraint firstItem="GYb-2C-Q15" firstAttribute="top" secondItem="hS2-GO-dAH" secondAttribute="top" constant="10" id="Vg5-XG-pI5"/>
+                    <constraint firstAttribute="trailing" secondItem="GYb-2C-Q15" secondAttribute="trailing" constant="20" id="ZHK-32-ar1"/>
+                    <constraint firstItem="6eW-T8-iiL" firstAttribute="leading" secondItem="hS2-GO-dAH" secondAttribute="leadingMargin" id="bWd-4j-ibz"/>
+                    <constraint firstItem="6eW-T8-iiL" firstAttribute="top" secondItem="GYb-2C-Q15" secondAttribute="bottom" constant="10" id="eNO-id-zJM"/>
+                </constraints>
+            </tableViewCellContentView>
+            <connections>
+                <outlet property="descriptionLabel" destination="6eW-T8-iiL" id="vd2-yp-8Ir"/>
+                <outlet property="titleLabel" destination="GYb-2C-Q15" id="uqe-LV-Qh7"/>
+            </connections>
+            <point key="canvasLocation" x="49" y="36"/>
+        </tableViewCell>
+    </objects>
+</document>

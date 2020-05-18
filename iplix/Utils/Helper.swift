@@ -22,7 +22,7 @@ struct Helper {
         return data
     }
     
-   static func parseDataMovie(movieData: [String: Any]) -> Movie {
+    static func parseDataMovie(movieData: [String: Any]) -> Movie {
         let backdrop_path = movieData["backdrop_path"] as? String
         let genre_ids = movieData["genre_ids"] as? [Int]
         let id = movieData["id"] as? Int
@@ -53,6 +53,18 @@ struct Helper {
         let rating = Ratings(movie_id: movie_id, rating_count: rating_count, rating_average: rating_average, one_stars: one_stars, two_stars: two_stars, three_stars: three_stars, four_stars: four_stars, five_stars: five_stars)
         
         return rating
-        
+    }
+    
+    static func humanizeDate(date: String) -> String {
+        if !date.isEmpty {
+            let dateFormatter = DateFormatter()
+            dateFormatter.locale = Locale(identifier: "en_US_POSIX")
+            dateFormatter.dateFormat = "yyyy-MM-dd"
+            let dateConverted = dateFormatter.date(from: date)
+            dateFormatter.dateFormat = "d MMMM yyyy"
+            return dateFormatter.string(from: dateConverted!)
+        } else {
+            return ""
+        }
     }
 }

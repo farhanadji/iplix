@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="16096" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="16087"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="TitleReviewTableViewCell" customModule="iplix" customModuleProvider="target"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="none" indentationWidth="10" reuseIdentifier="titleCell" id="2LR-qM-QS5" customClass="TitleReviewTableViewCell" customModule="iplix" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="414" height="43.5"/>
+            <autoresizingMask key="autoresizingMask"/>
+            <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="2LR-qM-QS5" id="XHc-uE-XFv">
+                <rect key="frame" x="0.0" y="0.0" width="414" height="43.5"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="Title" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="tUg-QU-3fB">
+                        <rect key="frame" x="25" y="0.0" width="369" height="35"/>
+                        <constraints>
+                            <constraint firstAttribute="height" constant="35" id="QoU-rV-zRF"/>
+                        </constraints>
+                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                        <textInputTraits key="textInputTraits" autocapitalizationType="words"/>
+                        <connections>
+                            <action selector="titleChanged:" destination="2LR-qM-QS5" eventType="editingChanged" id="xNS-DS-lNC"/>
+                        </connections>
+                    </textField>
+                </subviews>
+                <constraints>
+                    <constraint firstItem="tUg-QU-3fB" firstAttribute="top" secondItem="XHc-uE-XFv" secondAttribute="topMargin" constant="-11" id="Dj9-JU-PkC"/>
+                    <constraint firstAttribute="trailing" secondItem="tUg-QU-3fB" secondAttribute="trailing" constant="20" id="H8K-2b-tOJ"/>
+                    <constraint firstItem="tUg-QU-3fB" firstAttribute="leading" secondItem="XHc-uE-XFv" secondAttribute="leading" constant="25" id="R3s-We-IMg"/>
+                    <constraint firstItem="tUg-QU-3fB" firstAttribute="top" secondItem="XHc-uE-XFv" secondAttribute="top" id="gLu-gL-S2l"/>
+                </constraints>
+            </tableViewCellContentView>
+            <connections>
+                <outlet property="title" destination="tUg-QU-3fB" id="b2K-F0-w9r"/>
+            </connections>
+            <point key="canvasLocation" x="139" y="119"/>
+        </tableViewCell>
+    </objects>
+</document>

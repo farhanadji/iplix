@@ -13,8 +13,9 @@ import Firebase
 
 class MorePageViewController: UIViewController {
     
-    @IBOutlet weak var movieList: UITableView!
+    //    @IBOutlet weak var movieList: UITableView!
     
+    let movieList = UITableView()
     var moviesHasRating: [Movie] = []
     var movies: [Movie] = []
     var genres: [Genres] = []
@@ -22,14 +23,22 @@ class MorePageViewController: UIViewController {
     var delegate: ViewCellDelegator!
     var type: String = ""
     var sender: String = ""
+    var filter = "popularity.desc"
+    var index = 1
     var genre_id: Int?
+    var total_pages: Int?
     var movieToSend: Movie?
     var ratings: [Ratings] = []
     var movieRatingId: [Int] = []
+    let filterBtn = UIBarButtonItem()
+    let sheetView = BottomSheetView.instance
     
     let db = Firestore.firestore()
     override func viewDidLoad() {
         super.viewDidLoad()
+        setupTableView()
+        setupNavigationController()
+        setupBottomSheetView()
         let hud = JGProgressHUD(style: .dark)
         hud.textLabel.text = "Loading"
         hud.show(in: self.view)
@@ -53,6 +62,7 @@ class MorePageViewController: UIViewController {
         }
         
         if sender == K.identifier.senderHome {
+            filterBtn.isEnabled = false
             network.getGenres() { response in
                 self.genres = response
                 DispatchQueue.main.async {
@@ -61,8 +71,9 @@ class MorePageViewController: UIViewController {
                     }
                 }
             }
-            network.getMovies(typeMovie: type) { response in
+            network.getMovies(typeMovie: type) { response, pages in
                 self.movies = response
+                self.total_pages = pages
                 DispatchQueue.main.async {
                     if self.movies.count > 0 {
                         self.movieList.reloadData()
@@ -71,9 +82,11 @@ class MorePageViewController: UIViewController {
                 }
             }
         } else if sender == K.identifier.senderCategory {
+            filterBtn.isEnabled = true
             if let id = genre_id {
-                network.getDiscoverGenre(id: String(id)) { response in
+                network.getDiscoverGenre(id: String(id)) { response, pages in
                     self.movies = response
+                    self.total_pages = pages
                     DispatchQueue.main.async {
                         if self.movies.count > 0 {
                             self.movieList.reloadData()
@@ -85,13 +98,53 @@ class MorePageViewController: UIViewController {
         }
     }
     
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == K.identifier.goDetailFromAll {
-            if let vc = segue.destination as? MovieDetailViewController {
-                vc.movieData = movieToSend
-            }
-        }
+    func setupTableView() {
+        view.addSubview(movieList)
+        movieList.rowHeight = 100
+        movieList.translatesAutoresizingMaskIntoConstraints = false
+        movieList.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 0).isActive = true
+        movieList.topAnchor.constraint(equalTo: view.topAnchor, constant: 0).isActive = true
+        movieList.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: 0).isActive = true
+        movieList.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: 0).isActive = true
     }
+    
+    func setupNavigationController() {
+        filterBtn.target = self
+        filterBtn.image = UIImage(systemName: "line.horizontal.3.decrease.circle.fill")
+        filterBtn.action = #selector(bottomSheetView)
+        navigationItem.rightBarButtonItem = filterBtn
+    }
+    
+    func setupBottomSheetView() {
+        let dismissTap = UITapGestureRecognizer(target: self, action: #selector(dismissTapped))
+        sheetView.dimBackground.addGestureRecognizer(dismissTap)
+    }
+    
+    @objc func bottomSheetView() {
+        //        sheetView.show()
+        let filterVC = FilterViewController()
+        filterVC.modalPresentationStyle = .fullScreen
+        filterVC.delegate = self
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            filterVC.backgroundImage = self.navigationController?.view.asImage()
+            self.present(filterVC, animated: false, completion: nil)
+        }
+        
+    }
+    
+    @objc func dismissTapped() {
+        print("dismiss clicked")
+        sheetView.dismiss()
+    }
+    
+    //
+    //    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+    //        if segue.identifier == K.identifier.goDetailFromAll {
+    //            if let vc = segue.destination as? MovieDetailViewController {
+    //                vc.movieData = movieToSend
+    //            }
+    //        }
+    //    }
     
     override func viewWillAppear(_ animated: Bool) {
         let ratings = db.collection(K.collection.ratings).addSnapshotListener { (snapshot, error) in
@@ -106,6 +159,10 @@ class MorePageViewController: UIViewController {
             }
             self.movieList.reloadData()
         }
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        FilterViewController.resetSelected()
     }
 }
 
@@ -129,7 +186,9 @@ extension MorePageViewController: UITableViewDataSource, UITableViewDelegate {
         }
         
         cell.indexLabel.text = String(indexPath.row + 1)
-        cell.posterImage.sd_setImage(with: URL(string: network.posterURL + movies[indexPath.row].poster_path!))
+        if let poster = movies[indexPath.row].poster_path {
+            cell.posterImage.sd_setImage(with: URL(string: network.posterURL + poster))
+        }
         cell.titleLabel.text = movies[indexPath.row].title
         if sender == K.identifier.senderHome {
             if let genreId = movies[indexPath.row].genre_ids?.first {
@@ -139,13 +198,81 @@ extension MorePageViewController: UITableViewDataSource, UITableViewDelegate {
         } else {
             cell.genreLabel.text = " "
         }
-        cell.releaseDate.text = movies[indexPath.row].release_date
+        
+        if let date = movies[indexPath.row].release_date {
+            cell.releaseDate.text = Helper.humanizeDate(date: date)
+        } else {
+            cell.releaseDate.text = ""
+        }
         return cell
+    }
+    
+    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        let hud = JGProgressHUD(style: .dark)
+        hud.textLabel.text = "Loading"
+        if indexPath.row == movies.count - 1 {
+            hud.show(in: self.view)
+            if index < total_pages! {
+                index = index + 1
+                if sender == K.identifier.senderHome {
+                    network.getMovies(typeMovie: type, page: index) { response, pages in
+                        self.movies.append(contentsOf: response)
+                        self.movieList.reloadData()
+                        hud.dismiss(afterDelay: 0.5)
+                    }
+                } else if sender == K.identifier.senderCategory {
+                    if let id = genre_id {
+                        network.getDiscoverGenre(id: String(id), page: index, filter: filter) { response, pages in
+                            self.movies.append(contentsOf: response)
+                            self.movieList.reloadData()
+                            hud.dismiss(afterDelay: 0.5)
+                        }
+                    }
+                }
+            }
+        }
     }
     
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        movieToSend = movies[indexPath.row]
-        performSegue(withIdentifier: K.identifier.goDetailFromAll, sender: self)
+        //        movieToSend = movies[indexPath.row]
+        //        performSegue(withIdentifier: K.identifier.goDetailFromAll, sender: self)
+        let detailVC = MovieDetailViewController()
+        detailVC.movieData = movies[indexPath.row]
+        navigationController?.pushViewController(detailVC, animated: true)
     }
+}
+
+extension MorePageViewController: FilterDelegate {
+    func filterData(selected: FilterViewController.Filtering) {
+        print("called")
+        let hud = JGProgressHUD(style: .dark)
+         hud.textLabel.text = "Loading"
+         hud.show(in: self.view)
+             
+        
+        switch selected {
+        case .popularity:
+            filter = "popularity.desc"
+        case .release:
+            filter = "release_date.desc"
+        case .revenue:
+            filter = "revenue.desc"
+        case .title:
+            filter = "original_title.asc"
+        }
+        
+        if let id = genre_id {
+            network.getDiscoverGenre(id: String(id), filter: filter) { response, pages in
+                self.movies = response
+                self.total_pages = pages
+                DispatchQueue.main.async {
+                    self.movieList.reloadData()
+                    hud.dismiss(afterDelay: 1.0)
+                }
+            }
+        }
+    }
+    
+    
 }

@@ -24,6 +24,10 @@ struct K {
         static let logout = "logoutCell"
         static let search = "searchCell"
         static let category = "categoryCell"
+        static let notification = "notificationCell"
+        static let profilePicture = "profilePictureCell"
+        static let nameProfile = "nameProfileCell"
+        static let emailProfile = "emailProfileCell"
         
         static let goDetailFromHome = "goToDetail"
         static let goAllFromHome = "goToAll"
@@ -57,6 +61,7 @@ struct K {
         static let commentview = "CommentTableViewCell"
         static let movietableview = "MovieTableViewCell"
         static let searchtableview = "SearchTableViewCell"
+        static let categorytableview = "CategoryTableViewCell"
     }
     
     struct typeMovie {
@@ -98,12 +103,15 @@ struct K {
         static let signOut = "Do you want to sign out?"
         static let signInFailed = "Sign In Failed!"
         static let signUpFailed = "Sign Up Failed!"
+        static let signUpSuccess = "Sign Up Successfully!"
+        static let signUpMessage = "You have successfully registered and will be directed to home page"
     }
     
     struct collection {
         static let reviews = "reviews"
         static let favorites = "favorites"
         static let ratings = "ratings"
+        static let profile = "profile"
     }
     
     struct reviews_attr {
@@ -145,5 +153,6 @@ struct K {
     
     struct URL {
         static let default_backdrop = "https://cdn-a.william-reed.com/var/wrbm_gb_food_pharma/storage/images/9/2/8/5/235829-6-eng-GB/Feed-Test-SIC-Feed-20142_news_large.jpg"
+        static let storage = "gs://iplix-27328.appspot.com"
     }
 }

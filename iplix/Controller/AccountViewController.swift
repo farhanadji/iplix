@@ -10,34 +10,54 @@ import UIKit
 import Firebase
 
 class AccountViewController: UIViewController {
-    @IBOutlet weak var tableView: UITableView!
-    @IBOutlet weak var doneButton: UIBarButtonItem!
+    let tableView = UITableView(frame: CGRect.zero, style: .grouped)
+    lazy var doneBtn = UIBarButtonItem(barButtonSystemItem: UIBarButtonItem.SystemItem.done, target: self, action: #selector(doneHandler))
     var cellSection: Int = 1
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
+        setupNavigationController()
+        setupTableView()
         tableView.delegate = self
         tableView.dataSource = self
-        
+        tableView.register(UINib(nibName: "AccountTableViewCell",
+                                 bundle: nil),
+                           forCellReuseIdentifier: K.identifier.account)
+        tableView.register(UINib(nibName: "LogoutTableViewCell", bundle: nil), forCellReuseIdentifier: K.identifier.logout)
+        tableView.tableFooterView = UIView(frame: CGRect.zero)
         if Auth.auth().currentUser != nil {
             cellSection = 2
         }
     }
     
     
-    @IBAction func buttonPressed(_ sender: UIButton) {
-        if sender == doneButton {
-            dismiss(animated: true, completion: nil)
-        }
+    func setupTableView() {
+        view.addSubview(tableView)
+        tableView.translatesAutoresizingMaskIntoConstraints = false
+        tableView.topAnchor.constraint(equalTo: view.topAnchor, constant: 0).isActive = true
+        tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: 0).isActive = true
+        tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: 0).isActive = true
+        tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 0).isActive = true
     }
     
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == K.identifier.goAccountDetail {
-            let vc = segue.destination as! DetailAccountViewController
-            vc.email = Auth.auth().currentUser?.email
-            vc.name = Auth.auth().currentUser?.displayName
-        }
+    func setupNavigationController() {
+        navigationItem.title = "Account"
+        doneBtn.style = .done
+        navigationItem.rightBarButtonItem = doneBtn
+        
     }
+    
+    @objc func doneHandler() {
+        self.dismiss(animated: true, completion: nil)
+    }
+    
+//    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+//        if segue.identifier == K.identifier.goAccountDetail {
+//            let vc = segue.destination as! DetailAccountViewController
+//            vc.email = Auth.auth().currentUser?.email
+//            vc.name = Auth.auth().currentUser?.displayName
+//        }
+//    }
 }
 
 extension AccountViewController: UITableViewDataSource, UITableViewDelegate {
@@ -59,12 +79,25 @@ extension AccountViewController: UITableViewDataSource, UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+         tableView.deselectRow(at: indexPath, animated: true)
         if Auth.auth().currentUser != nil {
-            performSegue(withIdentifier: K.identifier.goAccountDetail, sender: self)
+//            performSegue(withIdentifier: K.identifier.goAccountDetail, sender: self)
+            let detailVC = DetailAccountViewController()
+            navigationController?.pushViewController(detailVC, animated: true)
         } else {
-            performSegue(withIdentifier: K.identifier.goLogin, sender: self)
+//            performSegue(withIdentifier: K.identifier.goLogin, sender: self)
+            let loginVC = LoginViewController()
+            navigationController?.pushViewController(loginVC, animated: true)
         }
     }
+//
+//    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+//        if indexPath.row == 0 {
+//            return 70
+//        } else {
+//            return UITableView.automaticDimension
+//        }
+//    }
 }
 
 extension AccountViewController: LogoutDelegate {

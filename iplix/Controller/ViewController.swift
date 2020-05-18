@@ -8,17 +8,28 @@
 
 import UIKit
 import SDWebImage
+import Firebase
 
 class ViewController: UIViewController {
-    
-    @IBOutlet weak var sliderCollection: UICollectionView!
-    @IBOutlet weak var accountBtn: UIBarButtonItem!
-    @IBOutlet weak var tableView: UITableView!
+    let tableView = UITableView()
+    //    @IBOutlet weak var sliderCollection: UICollectionView!
+    //    @IBOutlet weak var accountBtn: UIBarButtonItem!
+    //    @IBOutlet weak var tableView: UITableView!
+    //    @IBOutlet weak var notificationButton: UIBarButtonItem!
+    let accountBtn = UIBarButtonItem()
+    let notificationBtn = UIBarButtonItem()
+    let menuBtn = UIBarButtonItem()
     var movieToSend: Movie?
     var type: String = ""
+    var menuView = HamburgerMenu.instance
     
     override func viewDidLoad() {
+        print("didload called")
         super.viewDidLoad()
+        setupNavigationController()
+        setupTableView()
+        setupMenu()
+        setupGesture()
         tableView.dataSource = self
         tableView.delegate = self
         tableView
@@ -33,31 +44,196 @@ class ViewController: UIViewController {
                 forCellReuseIdentifier: K.identifier.sliderTable)
     }
     
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        let backItem = UIBarButtonItem()
-        backItem.title = K.text.back
-        navigationItem.backBarButtonItem = backItem
+    override func viewWillAppear(_ animated: Bool) {
+        setUserMenu()
+    }
+    //
+    //    override func viewWillAppear(_ animated: Bool) {
+    //        print("willappear called")
+    //        if Auth.auth().currentUser == nil {
+    //            DispatchQueue.main.async {
+    //                self.notificationButton.isEnabled = false
+    //            }
+    //        }
+    //    }
+    //
+    //    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+    //        let backItem = UIBarButtonItem()
+    //        backItem.title = K.text.back
+    //        navigationItem.backBarButtonItem = backItem
+    //
+    //        if segue.identifier == K.identifier.goDetailFromHome {
+    //            if let vc = segue.destination as? MovieDetailViewController {
+    //                if let movieData = movieToSend {
+    //                    vc.movieData = movieData
+    //                }
+    //            }
+    //        }
+    //
+    //        if segue.identifier == K.identifier.goAllFromHome {
+    //            if let vc = segue.destination as? MorePageViewController {
+    //                vc.type = type
+    //                vc.sender = K.identifier.senderHome
+    //            }
+    //        }
+    //    }
+    //
+    //    @IBAction func accountBtnPressed(_ sender: UIBarButtonItem) {
+    //        performSegue(withIdentifier: K.identifier.goAccount, sender: self)
+    //    }
+    
+    func setupTableView(){
+        view.addSubview(tableView)
+        view.backgroundColor = .systemBackground
+        tableView.translatesAutoresizingMaskIntoConstraints = false
+        tableView.rowHeight = UITableView.automaticDimension
+        tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 0).isActive = true
+        tableView.topAnchor.constraint(equalTo: view.topAnchor, constant: 0).isActive = true
+        tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: 0).isActive = true
+        tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: 0).isActive = true
+        tableView.separatorStyle = .none
+    }
+    
+    func setupNavigationController(){
+        accountBtn.image = UIImage(systemName: "person.circle")
+        accountBtn.target = self
+        accountBtn.action = #selector(accountBarTapped)
+        notificationBtn.target = self
+        notificationBtn.action = #selector(notificationBarTapped)
+        notificationBtn.image = UIImage(systemName: "bell.fill")
+        menuBtn.target = self
+        menuBtn.image = UIImage(systemName: "list.dash")
+        menuBtn.action = #selector(menuTapped)
+        navigationItem.rightBarButtonItems = [accountBtn, notificationBtn]
+        navigationItem.leftBarButtonItem = menuBtn
+        navigationController?.navigationBar.prefersLargeTitles = true
+        navigationController?.navigationBar.barTintColor = .systemBackground
+        navigationController?.navigationBar.barStyle = .default
+        navigationItem.title = "iplix"
+        tabBarController?.tabBar.isHidden = true
+    }
+    
+    @objc func accountBarTapped() {
+        print("tapped")
+        let accountVC = AccountViewController()
+        let navigation = UINavigationController()
+        navigation.viewControllers = [accountVC]
+        navigationController?.showDetailViewController(navigation, sender: self)
+    }
+    
+    @objc func notificationBarTapped() {
+//        let notificationVC = NotificationViewController()
+//        navigationController?.pushViewController(notificationVC, animated: true)
+//        let testVC = TestViewController()
+        let mainVC = MainPagerViewController()
+        navigationItem.backBarButtonItem = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
+        navigationController?.pushViewController(mainVC, animated: true)
         
-        if segue.identifier == K.identifier.goDetailFromHome {
-            if let vc = segue.destination as? MovieDetailViewController {
-                if let movieData = movieToSend {
-                    vc.movieData = movieData
+    }
+    
+    func setupMenu() {
+        let tapHome = UITapGestureRecognizer(target: self, action: #selector(homeTapped))
+        let tapProduct = UITapGestureRecognizer(target: self, action: #selector(productTapped))
+        let tapOrder = UITapGestureRecognizer(target: self, action: #selector(orderTapped))
+        let tapAnalytics = UITapGestureRecognizer(target: self, action: #selector(analyticsTapped))
+        let tapDismiss = UITapGestureRecognizer(target: self, action: #selector(dismissTapped))
+        let swipeDismiss = UISwipeGestureRecognizer(target: self, action: #selector(dismissTapped))
+        let tapAccount = UITapGestureRecognizer(target: self, action: #selector(accountTapped))
+        let tapLogout = UITapGestureRecognizer(target: self, action: #selector(logoutTapped))
+        swipeDismiss.direction = .left
+        menuView.dimBackground.addGestureRecognizer(swipeDismiss)
+        menuView.homeButton.addGestureRecognizer(tapHome)
+        menuView.orderButton.addGestureRecognizer(tapOrder)
+        menuView.productButton.addGestureRecognizer(tapProduct)
+        menuView.analyticsButton.addGestureRecognizer(tapAnalytics)
+        menuView.dimBackground.addGestureRecognizer(tapDismiss)
+        menuView.accountButton.addGestureRecognizer(tapAccount)
+        menuView.logoutButton.addGestureRecognizer(tapLogout)
+    }
+    
+    @objc func logoutTapped() {
+        let alert = UIAlertController(title: K.text.signOut,
+                                      message: "",
+                                      preferredStyle: .alert)
+        
+        alert.addAction(UIAlertAction(title: K.text.yes,
+                                      style: .destructive,
+                                      handler:
+            { action in
+                do {
+                    try Auth.auth().signOut()
+                } catch let error as NSError {
+                    print(error.localizedDescription)
                 }
-            }
-        }
-        
-        if segue.identifier == K.identifier.goAllFromHome {
-            if let vc = segue.destination as? MorePageViewController {
-                vc.type = type
-                vc.sender = K.identifier.senderHome
-            }
+                self.menuView.dismiss()
+        }))
+        alert.addAction(UIAlertAction(title: K.text.no,
+                                            style: .cancel,
+                                            handler: nil))
+        self.present(alert, animated: true)
+        DispatchQueue.main.async {
+            self.setUserMenu()
         }
     }
     
-    @IBAction func accountBtnPressed(_ sender: UIBarButtonItem) {
-        performSegue(withIdentifier: K.identifier.goAccount, sender: self)
-    }    
+    @objc func accountTapped() {
+        menuView.dismiss()
+        self.accountBarTapped()
+    }
+    
+    @objc func menuTapped() {
+        setUserMenu()
+        menuView.showMenu()
+    }
+    
+    func setupGesture() {
+        let edgeLeft = UIScreenEdgePanGestureRecognizer(target: self, action: #selector(menuTapped))
+        edgeLeft.edges = .left
+        view.addGestureRecognizer(edgeLeft)
+    }
+    
+    func setUserMenu() {
+        if let userLogged = Auth.auth().currentUser {
+            menuView.avatar.sd_setImage(with: userLogged.photoURL)
+            menuView.email.text = userLogged.email
+            menuView.name.text = userLogged.displayName
+            menuView.logoutButton.isHidden = false
+        } else {
+            menuView.avatar.image = UIImage(systemName: "person.circle.fill")
+            menuView.avatar.tintColor = UIColor(named: "blibliPrimary")
+            menuView.email.text = "Login/ Register"
+            menuView.name.text = "iplix"
+            menuView.logoutButton.isHidden = true
+        }
+    }
+    
+    @objc func dismissTapped() {
+        menuView.dismiss()
+    }
+    
+    @objc func homeTapped() {
+        tabBarController?.selectedIndex = 0
+        menuView.homeTapped()
+    }
+    
+    @objc func productTapped() {
+        tabBarController?.selectedIndex = 1
+        menuView.productTapped()
+    }
+    
+    @objc func orderTapped() {
+        tabBarController?.selectedIndex = 2
+        menuView.orderTapped()
+    }
+    
+    @objc func analyticsTapped() {
+        tabBarController?.selectedIndex = 3
+        menuView.analyticsTapped()
+    }
+    
 }
+
+
 
 //MARK: - UITableView
 extension ViewController: UITableViewDataSource, UITableViewDelegate, ViewCellDelegator {
@@ -105,24 +281,30 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate, ViewCellDe
         }
     }
     
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        var height: CGFloat = CGFloat()
-        if indexPath.row == 0 {
-            height = CGFloat(K.size.sliderHeight)
-        } else {
-            height = CGFloat(K.size.movieCollectionHeight)
-        }
-        return height
-    }
+    //    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+    //        var height: CGFloat = CGFloat()
+    //        if indexPath.row == 0 {
+    //            height = CGFloat(K.size.sliderHeight)
+    //        } else {
+    //            height = CGFloat(K.size.movieCollectionHeight)
+    //        }
+    //        return height
+    //    }
     
     func gotoDetail(movie: Movie) {
-        movieToSend = movie
-        performSegue(withIdentifier: K.identifier.goDetailFromHome, sender: self)
+        //        movieToSend = movie
+        let detailVC = MovieDetailViewController()
+        detailVC.movieData = movie
+        navigationController?.pushViewController(detailVC, animated: true)
     }
     
     func goToAll(type: String) {
-        self.type = type
-        performSegue(withIdentifier: K.identifier.goAllFromHome, sender: self)
+        //        self.type = type
+        //        performSegue(withIdentifier: K.identifier.goAllFromHome, sender: self)
+        let moreVC = MorePageViewController()
+        moreVC.type = type
+        moreVC.sender = K.identifier.senderHome
+        navigationController?.pushViewController(moreVC, animated: true)
     }
     
     

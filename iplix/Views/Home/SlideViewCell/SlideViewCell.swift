@@ -19,13 +19,15 @@ class SlideViewCell: UITableViewCell {
     var scrollingTimer = Timer()
     var rowIndex = 1
     let numberOfRecords: Int = 5
+    var total_pages: Int?
     override func awakeFromNib() {
         super.awakeFromNib()
         movieCollection.dataSource = self
         movieCollection.delegate = self
         movieCollection.register(UINib(nibName: K.nib.slideview, bundle: nil), forCellWithReuseIdentifier: K.identifier.slider)
-        network.getMovies(typeMovie: K.typeMovie.popular) { response in
+        network.getMovies(typeMovie: K.typeMovie.now_playing) { response, pages in
             self.moviesData = response
+            self.total_pages = pages
             self.movies.append(contentsOf: self.moviesData.prefix(upTo: 6))
             DispatchQueue.main.async {
                 self.movieCollection.reloadData()

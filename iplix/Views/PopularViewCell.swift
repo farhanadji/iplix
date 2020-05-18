@@ -25,6 +25,7 @@ class PopularViewCell: UITableViewCell {
     var network = NetworkManager()
     var delegate: ViewCellDelegator!
     var type: String = ""
+    var total_pages: Int?
     
     override func awakeFromNib() {
         super.awakeFromNib()
@@ -44,8 +45,9 @@ class PopularViewCell: UITableViewCell {
                 }
             }
         }
-        network.getMovies(typeMovie: typeMovie) { response in
+        network.getMovies(typeMovie: typeMovie) { response, pages in
             self.movies = response
+            self.total_pages = pages
             DispatchQueue.main.async {
                 if self.genres.count > 0 {
                     self.viewCollection.reloadData()

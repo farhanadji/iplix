@@ -2,7 +2,7 @@
 //  CategoryTableViewCell.swift
 //  iplix
 //
-//  Created by Farhan Adji on 17/04/20.
+//  Created by Farhan Adji on 24/04/20.
 //  Copyright © 2020 Farhan Adji. All rights reserved.
 //
 
@@ -21,5 +21,5 @@ class CategoryTableViewCell: UITableViewCell {
 
         // Configure the view for the selected state
     }
-
+    
 }

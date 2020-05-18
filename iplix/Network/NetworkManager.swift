@@ -23,19 +23,20 @@ struct NetworkManager {
     let searchMovieURL = "https://api.themoviedb.org/3/search/movie"
     let discoverURL = "https://api.themoviedb.org/3/discover/movie"
     
-    func getMovies(typeMovie: String, competion: @escaping ([Movie]) -> ()) {
+    func getMovies(typeMovie: String, page: Int = 1, competion: @escaping ([Movie], Int) -> ()) {
         
-        let finalURL = createURL(type: typeMovie)
+        let finalURL = createURL(type: typeMovie) + "&page=\(page)"
+        print(finalURL)
         
         AF.request(finalURL, method: .get).responseDecodable(of: Results.self) { response in
             guard let movies = response.value?.results else { return }
-            competion(movies)
+            guard let pages = response.value?.total_pages else { return }
+            competion(movies, pages)
         }
     }
     
     func getMovieDetail(id: Int, competion: @escaping ([ProductionCompany]) -> ()) {
         let finalURL = "\(movieURL)/\(id)?\(parameters["apiKey"]!)&\(parameters["language"]!)"
-        print(finalURL)
         
         AF.request(finalURL, method: .get).responseDecodable(of: MovieDetail.self) { response in
             guard let studio = response.value?.production_companies else { return }
@@ -50,13 +51,13 @@ struct NetworkManager {
             }
     }
      
-    func getDiscoverGenre(id: String, competion: @escaping ([Movie]) -> ()) {
-        let finalURL = "\(discoverURL)?\(parameters["apiKey"]!)&\(parameters["language"]!)&with_genres=\(id)"
+    func getDiscoverGenre(id: String, page: Int = 1, filter: String = "popularity.desc", competion: @escaping ([Movie], Int) -> ()) {
+        let finalURL = "\(discoverURL)?\(parameters["apiKey"]!)&\(parameters["language"]!)&with_genres=\(id)&page=\(page)&sort_by=\(filter)"
         print(finalURL)
         AF.request(finalURL, method: .get).responseDecodable(of: Results.self) { response in
             guard let movies = response.value?.results else { return }
-            print(movies)
-            competion(movies)
+            guard let pages = response.value?.total_pages else { return }
+            competion(movies, pages)
         }
     }
     

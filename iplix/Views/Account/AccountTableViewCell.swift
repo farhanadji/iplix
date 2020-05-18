@@ -16,9 +16,13 @@ class AccountTableViewCell: UITableViewCell {
     @IBOutlet weak var avatarImage: UIImageView!
     override func awakeFromNib() {
         super.awakeFromNib()
+        avatarImage.layer.cornerRadius = avatarImage.frame.size.height / 2
         if let user = Auth.auth().currentUser {
             titleLabel.text = user.displayName
             subtitleLabel.text = user.email
+            if let avatar = user.photoURL?.absoluteString {
+                avatarImage.sd_setImage(with: URL(string: avatar))
+            }
         } else {
             titleLabel.text = K.text.accountLogin
             subtitleLabel.isHidden = true

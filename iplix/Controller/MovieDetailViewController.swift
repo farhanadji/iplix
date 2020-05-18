@@ -12,16 +12,28 @@ import Firebase
 import JGProgressHUD
 
 class MovieDetailViewController: UIViewController {
-    @IBOutlet weak var backdrop: UIImageView!
-    @IBOutlet weak var imagePoster: UIImageView!
-    @IBOutlet weak var titleMovie: UILabel!
-    @IBOutlet weak var tableDetail: UITableView!
-    @IBOutlet weak var segmentControl: UISegmentedControl!
-    @IBOutlet weak var shareBtn: UIBarButtonItem!
-    @IBOutlet weak var scrollView: UIScrollView!
-    @IBOutlet weak var favoriteBtn: UIButton!
-    @IBOutlet weak var unfavoriteBtn: UIButton!
-    @IBOutlet weak var indicatorFav: UIActivityIndicatorView!
+    //    @IBOutlet weak var backdrop: UIImageView!
+    //    @IBOutlet weak var imagePoster: UIImageView!
+    //    @IBOutlet weak var titleMovie: UILabel!
+    //    @IBOutlet weak var tableDetail: UITableView!
+    //    @IBOutlet weak var segmentControl: UISegmentedControl!
+    //    @IBOutlet weak var shareBtn: UIBarButtonItem!
+    //    @IBOutlet weak var scrollView: UIScrollView!
+    //    @IBOutlet weak var favoriteBtn: UIButton!
+    //    @IBOutlet weak var unfavoriteBtn: UIButton!
+    //    @IBOutlet weak var indicatorFav: UIActivityIndicatorView!
+    
+    let backdrop = UIImageView()
+    let imagePoster = UIImageView()
+    let titleMovie = UILabel()
+    var alertView = AlertView()
+    let segmentControl = UISegmentedControl(items: ["Details", "Reviews", "Related"])
+    let tableDetail = UITableView()
+    let favoriteBtn = UIButton(type: UIButton.ButtonType.system)
+    let unfavoriteBtn = UIButton(type: UIButton.ButtonType.system)
+    let indicatorFav = UIActivityIndicatorView()
+    
+    lazy var shareBtn = UIBarButtonItem(barButtonSystemItem: UIBarButtonItem.SystemItem.action, target: self, action: #selector(shareHandler))
     
     let db = Firestore.firestore()
     
@@ -41,11 +53,26 @@ class MovieDetailViewController: UIViewController {
     let hud = JGProgressHUD(style: .dark)
     override func viewDidLoad() {
         super.viewDidLoad()
+        setupNavigationController()
+        setupView()
+//        self.alert.btnOk.addTarget(self, action: #selector(self.buttonHandler), for: .touchUpInside)
         hud.textLabel.text = "Loading"
         hud.show(in: self.view)
-        scrollView.delegate = self
+        //        scrollView.delegate = self
         tableDetail.delegate = self
         tableDetail.dataSource = self
+        tableDetail.register(
+            UINib(nibName: "AboutSegmentTableViewCell",
+                  bundle: nil),
+            forCellReuseIdentifier: K.identifier.about)
+        tableDetail.register(
+            UINib(nibName: "CastSegmentTableViewCell",
+                  bundle: nil),
+            forCellReuseIdentifier: K.identifier.cast)
+        tableDetail.register(
+            UINib(nibName: "InformationTableViewCell",
+                  bundle: nil),
+            forCellReuseIdentifier: K.identifier.information)
         tableDetail
             .register(
                 UINib(nibName: K.nib.ratingview,
@@ -94,8 +121,6 @@ class MovieDetailViewController: UIViewController {
             self.tableDetail.reloadData()
         }
         
-        favoriteBtn.layer.borderWidth = 1.0
-        favoriteBtn.layer.borderColor = UIColor.systemBlue.cgColor
         
         favorite = db
             .collection(K.collection.favorites)
@@ -123,7 +148,92 @@ class MovieDetailViewController: UIViewController {
     }
     
     
-    @IBAction func indexChanged(_ sender: Any) {
+    func setupView() {
+        view.backgroundColor = .systemBackground
+        view.addSubview(backdrop)
+        view.addSubview(imagePoster)
+        view.addSubview(titleMovie)
+        view.addSubview(segmentControl)
+        view.addSubview(tableDetail)
+        view.addSubview(favoriteBtn)
+        view.addSubview(unfavoriteBtn)
+        view.addSubview(indicatorFav)
+        
+        backdrop.translatesAutoresizingMaskIntoConstraints = false
+        backdrop.contentMode = .scaleAspectFill
+        backdrop.clipsToBounds = true
+        //        backdrop.frame = CGRect(x: backdrop.frame.origin.x, y: -44.0, width: backdrop.frame.size.width, height: 140)
+        //        print("Y POSITION : \(backdrop.frame.origin.y)")
+        backdrop.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 0).isActive = true
+        backdrop.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 0).isActive = true
+        backdrop.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: 0).isActive = true
+        backdrop.heightAnchor.constraint(equalToConstant: 140).isActive = true
+        
+        imagePoster.translatesAutoresizingMaskIntoConstraints = false
+        imagePoster.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10).isActive = true
+        imagePoster.topAnchor.constraint(equalTo: backdrop.bottomAnchor, constant: 8).isActive = true
+        imagePoster.heightAnchor.constraint(equalToConstant: 130).isActive = true
+        imagePoster.widthAnchor.constraint(equalToConstant: 100).isActive = true
+        
+        titleMovie.translatesAutoresizingMaskIntoConstraints = false
+        titleMovie.topAnchor.constraint(equalTo: backdrop.bottomAnchor, constant: 8).isActive = true
+        titleMovie.leadingAnchor.constraint(equalTo: imagePoster.trailingAnchor, constant: 8).isActive = true
+        titleMovie.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10).isActive = true
+        
+        segmentControl.translatesAutoresizingMaskIntoConstraints = false
+        segmentControl.topAnchor.constraint(equalTo: imagePoster.bottomAnchor, constant: 25).isActive = true
+        segmentControl.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10).isActive = true
+        segmentControl.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10).isActive = true
+        segmentControl.addTarget(self, action: #selector(segmentControl(_:)), for: .valueChanged)
+        
+        tableDetail.translatesAutoresizingMaskIntoConstraints = false
+        tableDetail.topAnchor.constraint(equalTo: segmentControl.bottomAnchor, constant: 8).isActive = true
+        tableDetail.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 0).isActive = true
+        tableDetail.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: 0).isActive = true
+        tableDetail.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: 0).isActive = true
+        tableDetail.tableFooterView = UIView(frame: CGRect.zero)
+        
+        favoriteBtn.translatesAutoresizingMaskIntoConstraints = false
+        favoriteBtn.layer.cornerRadius = 5
+        favoriteBtn.layer.borderWidth = 1.0
+        favoriteBtn.layer.borderColor = UIColor.systemBlue.cgColor
+        favoriteBtn.setTitle("FAVORITE", for: UIControl.State.normal)
+        favoriteBtn.setTitleColor(UIColor.link, for: UIControl.State.normal)
+        favoriteBtn.titleLabel?.font = UIFont.boldSystemFont(ofSize: 13)
+        favoriteBtn.bottomAnchor.constraint(equalTo: segmentControl.topAnchor, constant: -40).isActive = true
+        favoriteBtn.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10).isActive = true
+        favoriteBtn.widthAnchor.constraint(equalToConstant: 100).isActive = true
+        favoriteBtn.addTarget(self, action: #selector(favoriteHandler(_:)), for: .touchUpInside)
+        favoriteBtn.isHidden = true
+        
+        unfavoriteBtn.translatesAutoresizingMaskIntoConstraints = false
+        unfavoriteBtn.layer.cornerRadius = 5
+        unfavoriteBtn.layer.borderWidth = 1.0
+        unfavoriteBtn.layer.borderColor = UIColor.systemBlue.cgColor
+        unfavoriteBtn.setTitle("UNFAVORITE", for: UIControl.State.normal)
+        unfavoriteBtn.backgroundColor = UIColor.systemBlue
+        unfavoriteBtn.setTitleColor(UIColor.white, for: UIControl.State.normal)
+        unfavoriteBtn.titleLabel?.font = UIFont.boldSystemFont(ofSize: 13)
+        unfavoriteBtn.bottomAnchor.constraint(equalTo: segmentControl.topAnchor, constant: -40).isActive = true
+        unfavoriteBtn.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10).isActive = true
+        unfavoriteBtn.widthAnchor.constraint(equalToConstant: 100).isActive = true
+        unfavoriteBtn.addTarget(self, action: #selector(favoriteHandler(_:)), for: .touchUpInside)
+        unfavoriteBtn.isHidden = true
+        
+        indicatorFav.translatesAutoresizingMaskIntoConstraints = false
+        indicatorFav.bottomAnchor.constraint(equalTo: segmentControl.topAnchor, constant: -44).isActive = true
+        indicatorFav.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -50).isActive = true
+        indicatorFav.startAnimating()
+        indicatorFav.isHidden = false
+    }
+    
+    func setupNavigationController() {
+        navigationItem.largeTitleDisplayMode = .never
+        navigationItem.rightBarButtonItem = shareBtn
+        
+    }
+    
+    @objc func segmentControl(_ segmentedControl: UISegmentedControl) {
         switch segmentControl.selectedSegmentIndex {
         case 0:
             tableSection = 3
@@ -139,7 +249,24 @@ class MovieDetailViewController: UIViewController {
         }
     }
     
-    @IBAction func btnAction(_ sender: UIButton) {
+    //    @IBAction func indexChanged(_ sender: Any) {
+    //        switch segmentControl.selectedSegmentIndex {
+    //        case 0:
+    //            tableSection = 3
+    //            tableDetail.reloadData()
+    //        case 1:
+    //            tableSection = 2 + reviews.count
+    //            tableDetail.reloadData()
+    //        case 2:
+    //            tableSection = 2
+    //            tableDetail.reloadData()
+    //        default:
+    //            tableSection = 1
+    //        }
+    //    }
+    
+    //    @IBAction func btnAction(_ sender: UIButton) {
+    @objc func favoriteHandler(_ sender: UIButton) {
         if sender == favoriteBtn {
             let hud = JGProgressHUD(style: .dark)
             hud.textLabel.text = "Loading"
@@ -169,21 +296,30 @@ class MovieDetailViewController: UIViewController {
                         { error in
                             hud.dismiss(afterDelay: 1.0)
                             if let e = error {
-                                let alert = UIAlertController(title: K.text.errorTitle,
-                                                              message: e.localizedDescription,
-                                                              preferredStyle: .alert)
-                                alert.addAction(UIAlertAction(title: K.text.ok,
-                                                              style: .default,
-                                                              handler: nil))
-                                self.present(alert, animated: true)
+//                                let alert = UIAlertController(title: K.text.errorTitle,
+//                                                              message: e.localizedDescription,
+//                                                              preferredStyle: .alert)
+//                                alert.addAction(UIAlertAction(title: K.text.ok,
+//                                                              style: .default,
+//                                                              handler: nil))
+//                                self.present(alert, animated: true)
+
+                                let alert = AlertView()
+                                self.alertView = alert
+                                alert.setAlert(title: K.text.errorTitle, message: e.localizedDescription, alertType: .error)
+                                alert.btnOk.addTarget(self, action: #selector(self.alertHandler), for: .touchUpInside)
                             } else {
-                                let alert = UIAlertController(title: K.text.add_favorite,
-                                                              message: "",
-                                                              preferredStyle: .alert)
-                                alert.addAction(UIAlertAction(title: K.text.ok,
-                                                              style: .default,
-                                                              handler: nil))
-                                self.present(alert, animated: true)
+//                                let alert = UIAlertController(title: K.text.add_favorite,
+//                                                              message: "",
+//                                                              preferredStyle: .alert)
+//                                alert.addAction(UIAlertAction(title: K.text.ok,
+//                                                              style: .default,
+//                                                              handler: nil))
+//                                self.present(alert, animated: true)
+                                let alert = AlertView()
+                                self.alertView = alert
+                                alert.setAlert(title: K.text.add_favorite, message: "Check your favorite list!", alertType: .success)
+                                alert.btnOk.addTarget(self, action: #selector(self.alertHandler), for: .touchUpInside)
                                 self.favoriteBtn.isHidden = true
                                 self.unfavoriteBtn.isHidden = false
                             }
@@ -214,34 +350,41 @@ class MovieDetailViewController: UIViewController {
             self.present(alert, animated: true)
         }
     }
+    //    }
     
-    @IBAction func buttonPressed(_ sender: UIBarButtonItem) {
-        if sender == shareBtn {
-            var text: String = ""
-            if let movie = movieData{
-                text = "\(movie.title ?? "") - \(network.moviePageURL)\(movie.id ?? 0)"
-            }
-            let shareViewController = UIActivityViewController(activityItems: [text],
-                                                               applicationActivities: nil)
-            shareViewController.popoverPresentationController?.sourceView = self.view
-            self.present(shareViewController, animated: true, completion: nil)
+    //    @IBAction func buttonPressed(_ sender: UIBarButtonItem) {
+    //        if sender == shareBtn {
+    @objc func shareHandler() {
+        var text: String = ""
+        if let movie = movieData{
+            text = "\(movie.title ?? "") - \(network.moviePageURL)\(movie.id ?? 0)"
         }
+        let shareViewController = UIActivityViewController(activityItems: [text],
+                                                           applicationActivities: nil)
+        shareViewController.popoverPresentationController?.sourceView = self.view
+        self.present(shareViewController, animated: true, completion: nil)
     }
     
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == K.identifier.goReview {
-            if let vc = segue.destination as? UINavigationController {
-                if let targetController = vc.topViewController as? AddReviewViewController {
-                    if let id = movieData?.id {
-                        targetController.movie_id = id
-                        targetController.rating = self.ratings
-                        targetController.docId = self.docId
-                    }
-                }
-            }
-        }
+    @objc func alertHandler(){
+        alertView.hideAlert()
     }
     
+    
+    //    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+    //        if segue.identifier == K.identifier.goReview {
+    //            if let vc = segue.destination as? UINavigationController {
+    //                if let targetController = vc.topViewController as? AddReviewViewController {
+    //                    if let id = movieData?.id {
+    //                        targetController.movie_id = id
+    //                        targetController.rating = self.ratings
+    //                        targetController.docId = self.docId
+    //                    }
+    //                }
+    //            }
+    //        }
+    //    }
+    
+
     
     override func viewWillAppear(_ animated: Bool) {
         var reviews = db
@@ -399,7 +542,7 @@ extension MovieDetailViewController: UITableViewDataSource, UITableViewDelegate 
             }
             return cell
         } else if indexPath.row == 1 {
-            tableView.rowHeight = 44
+//            tableView.rowHeight = 44
             let cell = tableView.dequeueReusableCell(withIdentifier: K.identifier.addreview, for: indexPath) as! AddReviewTableViewCell
             cell.delegate = self
             return cell
@@ -470,28 +613,40 @@ extension MovieDetailViewController: AddReviewDelegates, ViewCellDelegator {
     
     func gotoDetail(movie: Movie) {
         movieToSend = movie
-        let storyboard = UIStoryboard(name: K.identifier.main, bundle: nil)
-        let vc = storyboard.instantiateViewController(identifier: K.identifier.movie_datail) as! MovieDetailViewController
-        if let movieData = movieToSend {
-            vc.movieData = movieData
-        }
-        self.navigationController!.pushViewController(vc, animated:true)
+        //        let storyboard = UIStoryboard(name: K.identifier.main, bundle: nil)
+        //        let vc = storyboard.instantiateViewController(identifier: K.identifier.movie_datail) as! MovieDetailViewController
+        //        if let movieData = movieToSend {
+        //            vc.movieData = movieData
+        //        }
+        let detailVC = MovieDetailViewController()
+        detailVC.movieData = movieToSend
+        self.navigationController!.pushViewController(detailVC, animated:true)
     }
     
     func goToAddReview() {
         if Auth.auth().currentUser == nil {
-            let storyboard = UIStoryboard(name: K.identifier.main, bundle: nil)
-            let vc = storyboard.instantiateViewController(identifier: K.identifier.signin_page) as! LoginViewController
-            self.navigationController!.pushViewController(vc, animated:true)
+            //            let storyboard = UIStoryboard(name: K.identifier.main, bundle: nil)
+            //            let vc = storyboard.instantiateViewController(identifier: K.identifier.signin_page) as! LoginViewController
+            let loginVC = LoginViewController()
+            self.navigationController!.pushViewController(loginVC, animated:true)
             hud.dismiss()
         } else {
-            performSegue(withIdentifier: K.identifier.goReview, sender: self)
+            //            performSegue(withIdentifier: K.identifier.goReview, sender: self)
+            let reviewVC = AddReviewViewController()
+            let navigationController = UINavigationController()
+            navigationController.viewControllers = [reviewVC]
+            if let vc = navigationController.topViewController as? AddReviewViewController {
+                vc.movie_id = movieData?.id
+                vc.rating = self.ratings
+                vc.docId = self.docId
+            }
+            self.navigationController?.showDetailViewController(navigationController, sender: self)
         }
     }
     
 }
 
-extension MovieDetailViewController: UIScrollViewDelegate {
-    
-}
+//extension MovieDetailViewController: UIScrollViewDelegate {
+//
+//}
 
